@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Risk dashboard · ERMIS</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect width='24' height='24' rx='6' fill='%23e8702a'/%3E%3Cpath d='M12 4.5 6.5 6.6v4.6c0 3.7 2.4 6.3 5.5 7.4 3.1-1.1 5.5-3.7 5.5-7.4V6.6z' fill='none' stroke='%23fff' stroke-width='1.6'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/shell.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/dashboard.css">
+</head>
+<body>
+  <div class="app" id="app">
+    <aside class="sidebar" id="sidebar"></aside>
+    <div class="main">
+      <header class="topbar" id="topbar"></header>
+      <main class="page" id="page">
+        <div class="page-head">
+          <div>
+            <h1 id="greeting">Risk dashboard</h1>
+            <p id="page-sub">Enterprise risk position across SingHealth institutions.</p>
+          </div>
+          <div class="page-actions">
+            <a class="btn" href="search.html" id="btn-search"></a>
+            <a class="btn btn-primary" href="review.html?new=1" id="btn-start"></a>
+          </div>
+        </div>
+
+        <div id="resume"></div>
+
+        <div class="filters" role="group" aria-label="Dashboard filters">
+          <label class="filter"><span>Institution</span><select class="select" id="f-inst"></select></label>
+          <label class="filter"><span>Risk domain</span><select class="select" id="f-domain"></select></label>
+          <label class="filter"><span>As at</span><select class="select" id="f-period"></select></label>
+          <button class="btn btn-ghost btn-sm hidden" id="f-clear">Clear filters</button>
+          <span class="filters-count muted" id="f-count"></span>
+        </div>
+
+        <section class="card kpis" id="kpis" aria-label="Key figures"></section>
+
+        <div class="dash-grid">
+          <section class="card span-5">
+            <div class="card-header"><div><h2>Risk heat map</h2><p class="card-sub">Inherent risk by impact and likelihood, before controls. Select a cell to see its risks.</p></div></div>
+            <div class="card-body"><div id="heatmap"></div><div class="heat-legend" id="heat-legend"></div></div>
+          </section>
+
+          <section class="card span-7">
+            <div class="card-header">
+              <div><h2>Risk summary by domain</h2><p class="card-sub">Active risks by inherent risk level. Select a domain to see its risks.</p></div>
+              <div class="segmented" role="tablist" aria-label="View">
+                <button class="is-active" data-view="chart" role="tab" aria-selected="true">Chart</button>
+                <button data-view="table" role="tab" aria-selected="false">Table</button>
+              </div>
+            </div>
+            <div class="card-body"><div id="domain-chart"></div><div id="domain-table" class="hidden"></div></div>
+          </section>
+
+          <section class="card span-12">
+            <div class="card-header"><div><h2>Top 10 risks</h2><p class="card-sub">Ranked by residual rating score, after current and proposed controls.</p></div></div>
+            <div class="table-wrap" id="top-risks"></div>
+          </section>
+
+          <section class="card span-6">
+            <div class="card-header"><div><h2>Control effectiveness</h2><p class="card-sub" id="eff-sub">Effectiveness of current controls across active risks.</p></div></div>
+            <div class="card-body"><div class="legend" id="eff-legend"></div><div id="eff-chart"></div></div>
+          </section>
+
+          <section class="card span-6">
+            <div class="card-header"><div><h2>Control adequacy</h2><p class="card-sub">Share of risks in each adequacy class, now and once proposed controls are in place.</p></div></div>
+            <div class="card-body"><div id="adequacy-chart"></div><p class="insight" id="adequacy-insight"></p></div>
+          </section>
+
+          <section class="card span-7" id="my-reviews-card">
+            <div class="card-header"><div><h2>My ERM reviews</h2><p class="card-sub">Reviews you have started or submitted.</p></div></div>
+            <div id="my-reviews"></div>
+          </section>
+
+          <section class="card span-5">
+            <div class="card-header"><div><h2>Control actions due</h2><p class="card-sub">Additional controls overdue or due within 90 days.</p></div></div>
+            <div id="deadlines"></div>
+          </section>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script src="js/data/reference.js"></script>
+  <script src="js/core/util.js"></script>
+  <script src="js/rating.js"></script>
+  <script src="js/data/corpus.js"></script>
+  <script src="js/core/store.js"></script>
+  <script src="js/core/auth.js"></script>
+  <script src="js/core/shell.js"></script>
+  <script src="js/charts.js"></script>
+  <script src="js/risk-detail.js"></script>
+  <script src="js/pages/dashboard.js"></script>
+</body>
+</html>
