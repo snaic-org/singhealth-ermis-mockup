@@ -4,10 +4,6 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Risk search · ERMIS</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect width='24' height='24' rx='6' fill='%23e8702a'/%3E%3Cpath d='M12 4.5 6.5 6.6v4.6c0 3.7 2.4 6.3 5.5 7.4 3.1-1.1 5.5-3.7 5.5-7.4V6.6z' fill='none' stroke='%23fff' stroke-width='1.6'/%3E%3C/svg%3E">
   <link rel="stylesheet" href="css/base.css">
   <link rel="stylesheet" href="css/shell.css">
   <link rel="stylesheet" href="css/components.css">
@@ -19,36 +15,26 @@
     <div class="main">
       <header class="topbar" id="topbar"></header>
       <main class="page" id="page">
-        <section class="search-hero">
-          <h1>Search the risk register by meaning</h1>
-          <p>Describe a risk in your own words. ERMIS finds comparable risks recorded across SingHealth, with the controls applied, how effective they were and the indicators used to monitor them.</p>
-          <form class="search-bar" id="search-form" role="search">
-            <span class="search-bar-icon" data-icon="search"></span>
-            <input class="search-input" name="q" type="search" placeholder="e.g. nurses leaving because of heavy workload" aria-label="Describe the risk you are looking for" autocomplete="off">
-            <button class="btn btn-primary btn-lg" type="submit">Search</button>
-          </form>
-          <div class="examples" id="examples"></div>
-        </section>
-
+        <div class="page-head">
+          <div>
+            <h1>Risk search</h1>
+            <p>Search the risk register by meaning to find comparable risks, with the controls and indicators used.</p>
+          </div>
+        </div>
+        <form class="search-bar" id="search-form" role="search">
+          <div class="input-group grow"><span data-icon="search"></span><input class="input" name="q" type="search" placeholder="Describe a risk in your own words" aria-label="Describe a risk" autocomplete="off"></div>
+          <button class="btn btn-primary" type="submit">Search</button>
+        </form>
         <div class="search-layout">
           <aside class="search-filters" aria-label="Filters">
-            <div class="sf-head"><h2>Filters</h2><button class="btn btn-ghost btn-sm hidden" id="sf-clear">Clear all</button></div>
-            <label class="field"><span class="field-label">Risk domain</span><select class="select" id="sf-domain"></select></label>
-            <label class="field"><span class="field-label">Institution</span><select class="select" id="sf-inst"></select></label>
-            <label class="field"><span class="field-label">Inherent risk level</span><select class="select" id="sf-band"></select></label>
-            <label class="field"><span class="field-label">Control adequacy</span><select class="select" id="sf-adequacy"></select></label>
-            <label class="field"><span class="field-label">Review period</span><select class="select" id="sf-period"></select></label>
+            <h2>Filters</h2>
+            <label class="field"><span class="field-label">Risk domain</span><select class="select"><option>All</option><option>Option 1</option><option>Option 2</option><option>Option 3</option></select></label>
+            <label class="field"><span class="field-label">Institution</span><select class="select"><option>All</option><option>Option 1</option><option>Option 2</option><option>Option 3</option></select></label>
+            <label class="field"><span class="field-label">Risk level</span><select class="select"><option>All</option><option>Option 1</option><option>Option 2</option><option>Option 3</option></select></label>
+            <label class="field"><span class="field-label">Review period</span><select class="select"><option>All</option><option>Option 1</option><option>Option 2</option><option>Option 3</option></select></label>
           </aside>
-
-          <section class="search-results" aria-live="polite">
-            <div class="sr-head">
-              <div><h2 id="sr-title">Recently added to the register</h2><p class="muted" id="sr-sub"></p></div>
-              <label class="sr-sort"><span class="muted">Sort by</span><select class="select" id="sr-sort">
-                <option value="relevance">Relevance</option>
-                <option value="rating">Highest residual rating</option>
-                <option value="recent">Most recent review</option>
-              </select></label>
-            </div>
+          <section aria-live="polite">
+            <h2 class="sr-title" id="sr-title"></h2>
             <div class="results" id="results"></div>
           </section>
         </div>
@@ -56,15 +42,10 @@
     </div>
   </div>
 
-  <script src="js/data/reference.js"></script>
   <script src="js/core/util.js"></script>
-  <script src="js/rating.js"></script>
-  <script src="js/data/corpus.js"></script>
   <script src="js/core/store.js"></script>
   <script src="js/core/auth.js"></script>
   <script src="js/core/shell.js"></script>
-  <script src="js/search-engine.js"></script>
-  <script src="js/search-ui.js"></script>
   <script src="js/pages/search.js"></script>
 </body>
 </html>

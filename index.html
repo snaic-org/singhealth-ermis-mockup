@@ -4,75 +4,34 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Sign in · ERMIS</title>
-  <meta name="description" content="SingHealth Enterprise Risk Management Information System">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect width='24' height='24' rx='6' fill='%23e8702a'/%3E%3Cpath d='M12 4.5 6.5 6.6v4.6c0 3.7 2.4 6.3 5.5 7.4 3.1-1.1 5.5-3.7 5.5-7.4V6.6z' fill='none' stroke='%23fff' stroke-width='1.6'/%3E%3C/svg%3E">
   <link rel="stylesheet" href="css/base.css">
   <link rel="stylesheet" href="css/login.css">
 </head>
 <body class="login-body">
   <main class="login">
-    <section class="login-brand" aria-label="About ERMIS">
-      <div class="login-brand-top">
-        <span class="brand-mark-lg" id="brand-mark"></span>
-        <div>
-          <div class="login-brand-name">ERMIS</div>
-          <div class="login-brand-org">SingHealth Office of Risk Services</div>
-        </div>
-      </div>
+    <form class="login-card" id="login-form" novalidate>
+      <div class="login-brand"><span class="ph-sq ph-sq-lg"></span><div><div class="login-name">ERMIS</div><div class="login-org">Office of Risk Services</div></div></div>
+      <h1>Sign in</h1>
 
-      <div class="login-hero">
-        <h1>Everyone a<br>risk manager.</h1>
-        <p>The Enterprise Risk Management Information System guides every department through the five-step ERM review, helps draft risks and controls, and keeps the risk register and dashboard current.</p>
-      </div>
+      <div class="callout callout-danger hidden" id="login-error" role="alert"></div>
 
-      <div class="login-matrix" aria-hidden="true" id="login-matrix"></div>
-
-      <ul class="login-points">
-        <li><span class="lp-icon" data-icon="list-checks"></span><div><strong>Guided five-step review</strong><span>From objectives to an endorsement-ready KRM Plan, with ratings calculated as you go.</span></div></li>
-        <li><span class="lp-icon" data-icon="sparkles"></span><div><strong>AI-assisted drafting</strong><span>Suggestions for risk statements, controls and indicators, grounded in past reviews.</span></div></li>
-        <li><span class="lp-icon" data-icon="grid"></span><div><strong>Live risk dashboard</strong><span>Heat map, top risks and control effectiveness across institutions.</span></div></li>
-      </ul>
-
-      <p class="login-foot">Patients. At the heart of all we do.</p>
-    </section>
-
-    <section class="login-panel">
-      <form class="login-form" id="login-form" novalidate>
-        <h2>Sign in to ERMIS</h2>
-        <p class="login-sub">Use your SingHealth email address and password.</p>
-
-        <div class="callout callout-danger hidden" id="login-error" role="alert"></div>
-
-        <label class="field" id="f-email">
-          <span class="field-label">Email address</span>
-          <span class="input-group"><span data-icon="mail"></span><input class="input" type="email" name="email" autocomplete="username" placeholder="name@singhealth.com.sg" required></span>
-          <span class="field-error">Enter your email address.</span>
-        </label>
-
-        <label class="field" id="f-password">
-          <span class="field-label">Password</span>
-          <span class="input-group password-group"><span data-icon="lock"></span><input class="input" type="password" name="password" autocomplete="current-password" placeholder="Enter your password" required>
-            <button type="button" class="pw-toggle" id="pw-toggle" aria-label="Show password"></button></span>
-          <span class="field-error">Enter your password.</span>
-        </label>
-
-        <label class="checkbox"><input type="checkbox" name="remember" checked> Keep me signed in on this device</label>
-
-        <button class="btn btn-primary btn-lg login-submit" type="submit" id="login-submit">Sign in</button>
-
-        <p class="login-help">Need access? Contact the Office of Risk Services.</p>
-      </form>
-      <span class="classification-tag">Restricted, Sensitive (Normal)</span>
-    </section>
+      <label class="field" id="f-email">
+        <span class="field-label">Email address</span>
+        <input class="input" type="email" name="email" autocomplete="username" placeholder="Enter your email address">
+        <span class="field-error">Enter your email address.</span>
+      </label>
+      <label class="field" id="f-password">
+        <span class="field-label">Password</span>
+        <input class="input" type="password" name="password" autocomplete="current-password" placeholder="Enter your password">
+        <span class="field-error">Enter your password.</span>
+      </label>
+      <button class="btn btn-primary login-submit" type="submit" id="login-submit">Sign in</button>
+    </form>
   </main>
 
-  <script src="js/data/reference.js"></script>
   <script src="js/core/util.js"></script>
-  <script src="js/rating.js"></script>
   <script src="js/core/auth.js"></script>
+  <script src="js/core/shell.js"></script>
   <script src="js/pages/login.js"></script>
 </body>
 </html>

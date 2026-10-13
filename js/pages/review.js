@@ -1,813 +1,362 @@
 (function () {
-  var u = ERMIS.u, esc = u.esc, icon = u.icon, REF = ERMIS.REF, Rating = ERMIS.Rating, Store = ERMIS.Store;
+  var u = ERMIS.u, esc = u.esc, icon = u.icon, Store = ERMIS.Store;
   var isNew = u.param('new') === '1';
-  var activeNav = isNew ? 'review' : '';
-  var user = ERMIS.Shell.mount({ active: activeNav, crumbs: [{ label: 'Dashboard', href: 'dashboard.html' }, { label: 'ERM review' }] });
-  if (!user) return;
+  if (!ERMIS.Shell.mount({ active: isNew ? 'review' : '', crumbs: [{ label: 'Dashboard', href: 'dashboard.html' }, { label: 'New ERM review' }] })) return;
 
-  var review = null;
+  var review;
   if (isNew) {
-    review = Store.createReview(user);
+    review = Store.createReview();
     history.replaceState(null, '', 'review.html?id=' + encodeURIComponent(review.id));
-    ERMIS.Shell.refreshSidebar(activeNav);
   } else {
-    review = Store.getReview(u.param('id'));
+    review = Store.getReview(u.param('id')) || Store.latestDraft() || Store.createReview();
   }
 
-  var stepEl = u.qs('#step');
-  if (!review) {
-    u.qs('#rv-title').textContent = 'Review not found';
-    u.qs('#rv-meta').textContent = 'This review may have been deleted.';
-    u.qs('#stepper').remove();
-    u.qs('#review-footer').remove();
-    u.qs('#assist-rail').remove();
-    u.qs('.review-actions').remove();
-    stepEl.innerHTML = '<div class="card"><div class="empty">' + icon('file') + '<h3>We could not find that review</h3><p>Return to the dashboard to open one of your reviews or start a new one.</p><p style="margin-top:16px"><a class="btn btn-primary" href="dashboard.html">Go to dashboard</a></p></div></div>';
-    return;
-  }
-
-  var readOnly = review.status === 'submitted';
-  var STEP_META = [
-    { short: 'Description & goal', title: 'Description and goal', intro: 'Describe the project, area, programme or initiative under review, and the goal it serves.' },
-    { short: 'Objectives & risks', title: 'Objectives and risk identification', intro: 'Set the objectives of this review, then identify the risk events that could prevent you from achieving them.' },
-    { short: 'Current controls', title: 'Evaluate current controls', intro: 'For each risk, describe the controls already in place and rate how effective they are. The risk rating is calculated as you go.' },
-    { short: 'Additional controls', title: 'Addition / change to controls', intro: 'Where current controls cannot adequately control a risk, propose additional controls and rate their effect. The rating after control changes is calculated as you go.' },
-    { short: 'KRM Plan', title: 'Key Risk Mitigation (KRM) Plan', intro: 'Identify the key risk indicators or outcome measures that show whether each risk is well managed, how often they are tracked and who monitors them.' },
-    { short: 'Generate & submit', title: 'Generate KRM Plan', intro: 'Complete the plan details and check the generated KRM Plan. Print it for endorsement by your Head of Department, then submit the review to the risk register.' }
+  var STEPS = [
+    { label: 'Description & goal', title: 'Description and goal', intro: 'Describe the project, area, programme or initiative under review and its goal.' },
+    { label: 'Objectives & risks', title: 'Objectives and risks', intro: 'Set the objectives of the review and identify the risks that could prevent them being achieved.' },
+    { label: 'Current controls', title: 'Current controls', intro: 'Describe the controls already in place for each risk and rate how effective they are.' },
+    { label: 'Additional controls', title: 'Additional controls', intro: 'Propose additional or changed controls where current controls are not adequate.' },
+    { label: 'KRM plan', title: 'KRM plan', intro: 'Set the key risk indicators or outcome measures used to monitor each risk.' },
+    { label: 'Review & submit', title: 'Review & submit', intro: 'Check the generated Key Risk Mitigation (KRM) Plan, print it for endorsement and submit it to the risk register.' }
   ];
-  var step = readOnly ? 6 : Math.min(6, Math.max(1, parseInt(u.param('step'), 10) || review.step || 1));
-  var validated = {};
-  var nextArmed = false;
-
-  /* ---------- Header ---------- */
-  u.qs('#btn-refs').innerHTML = icon('book') + '<span>References</span>';
-  u.qs('#btn-exit').innerHTML = readOnly ? icon('arrow-left') + 'Back to dashboard' : icon('save') + 'Save and exit';
-  u.qs('#btn-refs').addEventListener('click', function () {
-    ERMIS.Shell.openReference({ 1: 'glossary', 2: 'impact', 3: 'effectiveness', 4: 'effectiveness', 5: 'glossary', 6: 'rating' }[step]);
-  });
-  u.qs('#btn-exit').addEventListener('click', function (e) {
-    if (readOnly) return;
-    e.preventDefault();
-    flush();
-    location.href = 'dashboard.html';
-  });
-
-  function renderHeader() {
-    var title = review.info.title.trim() || 'New ERM review';
-    u.qs('#rv-title').textContent = title;
-    document.title = title + ' · ERMIS';
-    var crumb = u.qs('#topbar .crumbs .current');
-    if (crumb) crumb.textContent = title;
-    var inst = review.info.institution ? REF.institutionName(review.info.institution) : '';
-    u.qs('#rv-meta').innerHTML = (readOnly ? '<span class="chip chip-adequate">Submitted</span>' : '<span class="chip chip-primary">Draft</span>') +
-      '<span>' + esc(review.id) + '</span>' + (inst ? '<span>' + esc(review.info.department ? review.info.department + ', ' + inst : inst) + '</span>' : '');
-  }
-
-  /* ---------- Saving ---------- */
-  var saveTimer = null, pending = false, lastSaved = review.updatedAt;
-  var saveEl = u.qs('#save-state');
-  function setSaveState(s) {
-    if (readOnly) { saveEl.innerHTML = icon('lock', 'icon-sm') + 'Read only'; return; }
-    saveEl.innerHTML = s === 'saving' ? '<span class="save-dot"></span>Saving' : icon('check', 'icon-sm') + 'Saved ' + u.relTime(lastSaved);
-  }
-  function flush() {
-    if (!pending) return;
-    clearTimeout(saveTimer);
-    pending = false;
-    Store.saveReview(review);
-    lastSaved = review.updatedAt;
-    setSaveState('saved');
-  }
-  function touch() {
-    if (readOnly) return;
-    pending = true;
-    setSaveState('saving');
-    clearTimeout(saveTimer);
-    saveTimer = setTimeout(function () {
-      flush();
-      ERMIS.Shell.refreshSidebar(activeNav);
-    }, 450);
-  }
-  setInterval(function () { if (!pending) setSaveState('saved'); }, 30000);
-  window.addEventListener('beforeunload', flush);
-  window.addEventListener('pagehide', flush);
-  setSaveState('saved');
+  var step = Math.min(6, Math.max(1, parseInt(u.param('step'), 10) || review.step || 1));
+  var stepEl = u.qs('#step');
 
   /* ---------- Helpers ---------- */
-  function getRisk(id) { for (var i = 0; i < review.risks.length; i++) if (review.risks[i].id === id) return review.risks[i]; return null; }
-  function riskIndex(id) { for (var i = 0; i < review.risks.length; i++) if (review.risks[i].id === id) return i + 1; return 0; }
-  function getObj(id) { for (var i = 0; i < review.objectives.length; i++) if (review.objectives[i].id === id) return review.objectives[i]; return null; }
+  function generic(placeholder) {
+    return '<option value="">' + esc(placeholder) + '</option><option>Option 1</option><option>Option 2</option><option>Option 3</option>';
+  }
+  function label(id, text, req) {
+    return '<label class="field-label" for="' + id + '">' + esc(text) + (req ? ' <span class="req">*</span>' : '') + '</label>';
+  }
+  function input(id, bind, text, req, ph, type) {
+    return '<div class="field">' + label(id, text, req) + '<input class="input" id="' + id + '" ' + bind + ' type="' + (type || 'text') + '" placeholder="' + esc(ph || '') + '"></div>';
+  }
+  function textarea(id, bind, text, req, ph, assist, hint) {
+    return '<div class="field">' + label(id, text, req) + '<textarea class="textarea" id="' + id + '" ' + bind + (assist ? ' data-assist="' + assist + '"' : '') + ' placeholder="' + esc(ph) + '"></textarea>' + (hint ? '<span class="field-hint">' + esc(hint) + '</span>' : '') + '</div>';
+  }
+  function select(id, bind, text, req, ph) {
+    return '<div class="field">' + label(id, text, req) + '<select class="select" id="' + id + '" ' + bind + '>' + generic(ph) + '</select></div>';
+  }
+  // Binding attributes for a risk field; fields with ERMIS Assist also carry the risk id for context.
+  function rb(r, f) {
+    var assisted = ['statement', 'consequence', 'currentControls', 'addControls', 'kri'].indexOf(f) > -1;
+    return 'data-risk="' + r.id + '" data-field="' + f + '"' + (assisted ? ' data-risk-id="' + r.id + '"' : '');
+  }
+  function getRisk(id) { return review.risks.filter(function (x) { return x.id === id; })[0]; }
+  function riskNo(r) { return review.risks.indexOf(r) + 1; }
+  function valOrBar(v, w) { return v && v.trim() ? '<span class="ctx-value">' + esc(v) + '</span>' : '<span class="ph ph-w' + (w || 70) + '"></span>'; }
 
-  function options(list, value, placeholder) {
-    return (placeholder ? '<option value=""' + (value ? '' : ' selected') + '>' + esc(placeholder) + '</option>' : '') +
-      list.map(function (o) {
-        var v = typeof o === 'string' ? o : o.value, l = typeof o === 'string' ? o : o.label;
-        return '<option value="' + esc(v) + '"' + (v === value ? ' selected' : '') + '>' + esc(l) + '</option>';
-      }).join('');
-  }
-  function infoBtn(tab, riskId) {
-    return '<button type="button" class="info-btn" data-ref="' + tab + '"' + (riskId ? ' data-risk-id="' + riskId + '"' : '') + ' aria-label="Open ' + tab + ' reference">' + icon('info', 'icon-sm') + '</button>';
-  }
-  function label(id, text, required, extra) {
-    return '<span class="field-label"><label for="' + id + '">' + esc(text) + '</label>' + (required ? '<span class="req" aria-hidden="true">*</span>' : '') + (extra || '') + '</span>';
-  }
-  function fid(riskId, field) { return 'f-' + riskId + '-' + field; }
-
-  function riskContext(r, opts) {
-    opts = opts || {};
-    var idx = riskIndex(r.id);
-    var R = Rating.forRisk(r);
-    return '<div class="risk-context">' +
-      '<div class="rc-top"><span class="risk-num">Risk ' + idx + '</span>' + (r.domain ? '<span class="tag">' + esc(r.domain) + '</span>' : '') +
-      u.bandChip(R.band) + (opts.current ? '<span data-live="curchip:' + r.id + '">' + (R.current ? u.adequacyChip(R.current.label, R.current.display) : '') + '</span>' : '') +
-      (readOnly ? '' : '<button type="button" class="rc-edit" data-goto="2" data-focus="' + fid(r.id, 'statement') + '">' + icon('edit', 'icon-sm') + 'Edit in Step 2</button>') + '</div>' +
-      '<p class="rc-statement">' + (r.statement.trim() ? esc(r.statement) : '<span class="muted">No risk statement yet</span>') + '</p>' +
-      (opts.details ? '<dl class="rc-meta">' +
-        '<div><dt>Potential consequences</dt><dd>' + (esc(r.consequence) || '<span class="muted">Not provided</span>') + '</dd></div>' +
-        '<div><dt>Impact</dt><dd>' + (esc(r.impact) || '<span class="muted">Not rated</span>') + '</dd></div>' +
-        '<div><dt>Likelihood</dt><dd>' + (esc(r.likelihood) || '<span class="muted">Not rated</span>') + '</dd></div>' +
-        '<div><dt>Risk owner</dt><dd>' + (esc(r.owner) || '<span class="muted">Not assigned</span>') + '</dd></div></dl>' : '') +
-      '</div>';
+  function riskContext(r) {
+    return '<div class="risk-ctx"><div class="risk-ctx-top"><h3>Risk ' + riskNo(r) + '</h3><span class="chip">Not rated</span></div>' +
+      '<div class="risk-ctx-statement">' + valOrBar(r.statement, 60) + '</div>' +
+      '<div class="risk-ctx-grid">' +
+      '<div><span class="ctx-label">Potential consequences</span>' + valOrBar(r.consequence, 80) + '</div>' +
+      '<div><span class="ctx-label">Impact</span>' + valOrBar(r.impact, 80) + '</div>' +
+      '<div><span class="ctx-label">Likelihood</span>' + valOrBar(r.likelihood, 80) + '</div>' +
+      '<div><span class="ctx-label">Risk owner</span>' + valOrBar(r.owner, 80) + '</div></div></div>';
   }
 
-  function structureChip(text) {
-    if (!text.trim()) return '<span class="struct struct-idle">' + icon('info', 'icon-sm') + 'Write as [EVENT] due to [CAUSES] resulting in [CONSEQUENCES]</span>';
-    var dueTo = /\bdue to\b/i.test(text), res = /\bresulting in\b/i.test(text);
-    if (dueTo && res) return '<span class="struct struct-ok">' + icon('check-circle', 'icon-sm') + 'Follows the standard risk statement structure</span>';
-    var miss = [];
-    if (!dueTo) miss.push('"due to [CAUSES]"');
-    if (!res) miss.push('"resulting in [CONSEQUENCES]"');
-    return '<span class="struct struct-warn">' + icon('alert', 'icon-sm') + 'Add ' + miss.join(' and ') + ' to complete the structure</span>';
+  function head(n) {
+    return '<div class="step-head"><h2>Step ' + n + ': ' + esc(STEPS[n - 1].title) + '</h2><p>' + esc(STEPS[n - 1].intro) + '</p></div>';
+  }
+  function infoCallout() {
+    return '<div class="callout">' + icon('info') + '<span>Risks identified in Step 2 are listed below. Add or edit the details for each risk.</span></div>';
   }
 
-  function fmtScore(n) { return (Math.round(n * 1000) / 1000).toString(); }
-
-  function currentPanel(r) {
-    var cur = Rating.current(r.impact, r.likelihood, r.currentEff);
-    if (!cur) {
-      var why = !r.impact || !r.likelihood ? 'Rate impact and likelihood in Step 2, then select the effectiveness of current controls to calculate the rating.' : 'Select the effectiveness of current controls to calculate the rating.';
-      return '<div class="rating-panel is-pending"><span class="rp-label">Risk rating with current controls</span><p class="muted">' + why + '</p></div>';
-    }
-    var im = Rating.find(REF.IMPACT, r.impact), lk = Rating.find(REF.LIKELIHOOD, r.likelihood);
-    var adq = REF.ADEQUACY.filter(function (a) { return a.name === cur.label; })[0];
-    return '<div class="rating-panel rp-' + Rating.adequacyKey(cur.label) + '"><div class="rp-row"><span class="rp-label">Risk rating with current controls</span>' + u.adequacyChip(cur.label, cur.display) + '</div>' +
-      '<p class="rp-formula num">(' + esc(im.name) + ' ' + im.score + ' + ' + esc(lk.name) + ' ' + lk.score + ') × (1 − ' + cur.eff.toFixed(2) + ') = ' + fmtScore(cur.score) + '</p>' +
-      '<p class="rp-action">' + esc(adq.action) + '</p></div>';
-  }
-
-  function afterPanel(r) {
-    var cur = Rating.current(r.impact, r.likelihood, r.currentEff);
-    var aft = Rating.after(r.impact, r.likelihood, r.currentEff, r.addChange);
-    var left = cur ? '<span class="chip-score">' + u.adequacyChip(cur.label, cur.display) + '</span>' : '<span class="chip chip-neutral">Pending</span>';
-    var right = aft ? '<span class="chip-score">' + u.adequacyChip(aft.label, aft.display) + '</span>' : '<span class="chip chip-neutral">' + (cur ? 'Rate additional controls' : 'Pending') + '</span>';
-    var formula = '';
-    if (aft) {
-      var ch = Rating.find(REF.CONTROL_CHANGE, r.addChange);
-      var raw = Rating.rawScore(r.impact, r.likelihood);
-      var effExpr = ch.value === 0 ? cur.eff.toFixed(2) + ' (no change)' : ch.value > 0 ?
-        cur.eff.toFixed(2) + ' + (1 − ' + cur.eff.toFixed(2) + ') × ' + ch.value.toFixed(2) + ' = ' + fmtScore(aft.eff) :
-        cur.eff.toFixed(2) + ' × (1 − ' + Math.abs(ch.value).toFixed(2) + ') = ' + fmtScore(aft.eff);
-      formula = '<p class="rp-formula num">Effectiveness ' + effExpr + '<br>Rating ' + raw + ' × (1 − ' + fmtScore(aft.eff) + ') = ' + aft.score.toFixed(1) + '</p>';
-    }
-    return '<div class="rating-compare"><div class="rc-col"><span class="rp-label">With current controls</span>' + left + '</div>' +
-      '<span class="rc-arrow">' + icon('arrow-right') + '</span>' +
-      '<div class="rc-col"><span class="rp-label">After control changes</span>' + right + '</div></div>' + formula;
-  }
-
-  function monitorWarning(r) {
-    if (r.monitoredBy.trim() && r.actionBy.trim() && r.monitoredBy.trim().toLowerCase() === r.actionBy.trim().toLowerCase()) {
-      return '<div class="callout callout-warning compact">' + icon('alert', 'icon-sm') + '<span>The same person is implementing and monitoring this risk\'s controls. Where possible, assign a different person to monitor them as a check and balance.</span></div>';
-    }
-    return '';
-  }
-
-  function stepHead(n) {
-    var m = STEP_META[n - 1];
-    var intro = readOnly && n === 6 ? 'The KRM Plan generated from this review, in the endorsement format for printing and sign-off by your Head of Department.' : m.intro;
-    return '<div class="step-head"><span class="step-kicker">' + (n <= 5 ? 'Step ' + n + ' of 5' : 'Final step') + '</span><h2>' + esc(m.title) + '</h2><p>' + esc(intro) + '</p></div>';
-  }
-
-  /* ---------- Step 1 ---------- */
-  function renderStep1() {
-    var i = review.info;
-    var periods = REF.PERIODS.slice(-4).map(function (p) { return { value: p, label: REF.formatPeriod(p) }; });
-    return stepHead(1) + '<section class="card form-card"><div class="form-grid">' +
-      '<div class="field span-2">' + label('f-title', 'Review title', true) + '<input class="input" id="f-title" data-bind="info.title" data-required value="' + esc(i.title) + '" placeholder="e.g. Opening of the Geriatric Specialist Outpatient Medical Centre"><span class="field-error">Enter a title for this review.</span></div>' +
-      '<div class="field span-2">' + label('f-desc', 'Description', true) + '<textarea class="textarea" id="f-desc" rows="3" data-bind="info.description" data-assist="description" data-required placeholder="Describe the project, area, programme or initiative under review">' + esc(i.description) + '</textarea><span class="field-error">Describe the project, area, programme or initiative.</span></div>' +
-      '<div class="field">' + label('f-loc', 'Location', true) + '<input class="input" id="f-loc" data-bind="info.location" data-required value="' + esc(i.location) + '" placeholder="e.g. SGH Block 3, Level 1"><span class="field-error">Enter the location.</span></div>' +
-      '<div class="field">' + label('f-period', 'Review period', true) + '<select class="select" id="f-period" data-bind="info.period" data-required>' + options(periods, i.period, 'Select period') + '</select><span class="field-error">Select the review period.</span></div>' +
-      '<div class="field span-2">' + label('f-vision', 'Vision / Mission / Strategic Priorities / Goal', true) + '<textarea class="textarea" id="f-vision" rows="3" data-bind="info.vision" data-assist="vision" data-required placeholder="The goal of the project, area, programme or initiative">' + esc(i.vision) + '</textarea><span class="field-error">Enter the vision, mission, strategic priorities or goal.</span></div>' +
-      '<div class="field">' + label('f-inst', 'Institution', true) + '<select class="select" id="f-inst" data-bind="info.institution" data-required>' + options(REF.INSTITUTIONS.map(function (x) { return { value: x.code, label: x.name }; }), i.institution, 'Select institution') + '</select><span class="field-error">Select the institution.</span></div>' +
-      '<div class="field">' + label('f-dept', 'Division / Department / Unit', true) + '<input class="input" id="f-dept" data-bind="info.department" data-required value="' + esc(i.department) + '" placeholder="e.g. Pharmacy"><span class="field-error">Enter the division, department or unit.</span></div>' +
-      '<div class="field">' + label('f-by', 'Person(s) completing this review', true) + '<input class="input" id="f-by" data-bind="info.completedBy" data-required value="' + esc(i.completedBy) + '"><span class="field-error">Enter who is completing this review.</span></div>' +
-      '<div class="field">' + label('f-date', 'Date completed', true) + '<input class="input" type="date" id="f-date" data-bind="info.dateCompleted" data-required value="' + esc(i.dateCompleted) + '"><span class="field-error">Enter the date.</span></div>' +
-      '<div class="field span-2">' + label('f-involved', 'Person(s) involved in the review') + '<div class="tag-input" id="tag-input">' +
-      '<span class="tag-chips" id="tag-chips">' + tagChips() + '</span>' +
-      '<input id="f-involved" placeholder="Type a name and press Enter" autocomplete="off"></div><span class="field-hint">Include everyone who took part, for example in the review workshop.</span></div>' +
+  /* ---------- Steps ---------- */
+  function step1() {
+    return head(1) + '<section class="card form-card"><div class="form-grid">' +
+      '<div class="span-2">' + textarea('i-desc', 'data-bind="info.description"', 'Description', true, 'Describe the project, area, programme or initiative', 'description') + '</div>' +
+      input('i-loc', 'data-bind="info.location"', 'Location', true, 'Enter location') +
+      select('i-period', 'data-bind="info.period"', 'Review period', true, 'Select period') +
+      '<div class="span-2">' + textarea('i-vision', 'data-bind="info.vision"', 'Vision / Mission / Strategic priorities / Goal', true, 'Enter the goal of the project, area, programme or initiative', 'vision') + '</div>' +
+      select('i-inst', 'data-bind="info.institution"', 'Institution', true, 'Select institution') +
+      input('i-dept', 'data-bind="info.department"', 'Division / Department / Unit', true, 'Enter division, department or unit') +
+      input('i-by', 'data-bind="info.completedBy"', 'Person(s) completing this review', true, 'Enter name(s)') +
+      input('i-date', 'data-bind="info.dateCompleted"', 'Date completed', true, '', 'date') +
+      '<div class="span-2">' + input('i-inv', 'data-bind="info.involvedText"', 'Person(s) involved in the review', false, 'Enter names, separated by commas') + '</div>' +
       '</div></section>';
   }
 
-  function tagChips() {
-    return (review.info.involved || []).map(function (n, k) {
-      return '<span class="tag-chip">' + esc(n) + (readOnly ? '' : '<button type="button" data-untag="' + k + '" aria-label="Remove ' + esc(n) + '">' + icon('x', 'icon-sm') + '</button>') + '</span>';
+  function step2() {
+    var objs = review.objectives.map(function (o, k) {
+      return '<div class="obj-row"><span class="obj-num">' + (k + 1) + ')</span>' +
+        '<label class="sr-only" for="o-' + o.id + '">Objective ' + (k + 1) + '</label><input class="input grow" id="o-' + o.id + '" data-obj="' + o.id + '" data-assist="objective" placeholder="Enter objective">' +
+        '<button class="btn btn-ghost btn-icon btn-sm" data-remove-obj="' + o.id + '" aria-label="Remove objective"' + (review.objectives.length === 1 ? ' disabled' : '') + '>' + icon('trash', 'icon-sm') + '</button></div>';
+    }).join('');
+    var risks = review.risks.map(function (r) {
+      return '<article class="risk-card"><header class="risk-card-head"><h3>Risk ' + riskNo(r) + '</h3>' +
+        '<button class="btn btn-ghost btn-sm btn-danger" data-remove-risk="' + r.id + '"' + (review.risks.length === 1 ? ' disabled' : '') + '>' + icon('trash', 'icon-sm') + 'Remove</button></header>' +
+        '<div class="risk-card-body">' +
+        textarea('r-' + r.id + '-statement', rb(r, 'statement'), 'Risk statement', true, '[EVENT] due to [CAUSES] resulting in [CONSEQUENCES]', 'riskStatement') +
+        textarea('r-' + r.id + '-consequence', rb(r, 'consequence'), 'Potential consequences if the risk occurs', true, 'Describe what would happen if the risk occurs', 'consequence') +
+        '<div class="form-grid cols-3">' + select('r-' + r.id + '-domain', rb(r, 'domain'), 'Risk domain', true, 'Select domain') +
+        select('r-' + r.id + '-impact', rb(r, 'impact'), 'Impact', true, 'Select impact') +
+        select('r-' + r.id + '-likelihood', rb(r, 'likelihood'), 'Likelihood', true, 'Select likelihood') + '</div>' +
+        input('r-' + r.id + '-owner', rb(r, 'owner'), 'Risk owner(s)', true, 'Enter name and designation') +
+        '</div></article>';
+    }).join('');
+    return head(2) +
+      '<section class="card form-card"><h3 class="section-title">Objectives</h3><div class="obj-list">' + objs + '</div>' +
+      (review.objectives.length < 10 ? '<button class="btn btn-sm add-obj" id="add-obj">' + icon('plus', 'icon-sm') + 'Add objective</button>' : '') + '</section>' +
+      '<h3 class="section-title section-out">Identified risks</h3>' + risks +
+      '<button class="btn add-risk" id="add-risk">' + icon('plus') + 'Add risk</button>';
+  }
+
+  function step3() {
+    return head(3) + infoCallout() + review.risks.map(function (r) {
+      return '<article class="risk-card">' + riskContext(r) + '<div class="risk-card-body"><div class="form-grid">' +
+        textarea('r-' + r.id + '-cc', rb(r, 'currentControls'), 'Current controls', true, 'Enter controls already in place (one per line)', 'currentControls', 'List each control on a new line.') +
+        '<div class="stack">' + select('r-' + r.id + '-ce', rb(r, 'currentEff'), 'Effectiveness rating', true, 'Select rating') +
+        '<div class="calc-box">Rating will be calculated based on impact, likelihood and effectiveness</div></div>' +
+        '</div></div></article>';
     }).join('');
   }
-  function renderTags() { var c = u.qs('#tag-chips'); if (c) c.innerHTML = tagChips(); }
-  function addTag(v) {
-    v = String(v || '').replace(/,$/, '').trim();
-    if (!v) return;
-    review.info.involved = review.info.involved || [];
-    review.info.involved.push(v);
-    touch();
-    renderTags();
+
+  function step4() {
+    return head(4) + infoCallout() + review.risks.map(function (r) {
+      return '<article class="risk-card">' + riskContext(r) + '<div class="risk-card-body"><div class="form-grid">' +
+        textarea('r-' + r.id + '-ac', rb(r, 'addControls'), 'Additional controls', false, 'Enter new or changed controls (one per line)', 'additionalControls', 'Optional. List each control on a new line.') +
+        '<div class="stack">' + select('r-' + r.id + '-ach', rb(r, 'addChange'), 'Effectiveness of additional controls', false, 'Select rating') +
+        '<div class="calc-box">Rating after control changes will be calculated here</div></div>' +
+        input('r-' + r.id + '-td', rb(r, 'targetDate'), 'Target completion date', false, '', 'date') +
+        input('r-' + r.id + '-ab', rb(r, 'actionBy'), 'Action by', false, 'Enter person implementing the controls') +
+        '</div></div></article>';
+    }).join('');
   }
 
-  /* ---------- Step 2 ---------- */
-  function objectiveRow(o, k) {
-    var persp = REF.OBJECTIVE_PERSPECTIVES.map(function (p) { return { value: p, label: p }; });
-    return '<div class="obj-row">' +
-      '<span class="obj-num num">' + (k + 1) + ')</span>' +
-      '<div class="field grow"><label class="sr-only" for="o-' + o.id + '">Objective ' + (k + 1) + '</label><textarea class="textarea obj-input" rows="1" id="o-' + o.id + '" data-obj="' + o.id + '" data-field="text" data-assist="objective"' + (k === 0 ? ' data-required' : '') + ' placeholder="e.g. To dispense the right medication to the right patient each and every time.">' + esc(o.text) + '</textarea>' + (k === 0 ? '<span class="field-error">Add at least one objective.</span>' : '') + '</div>' +
-      '<label class="sr-only" for="op-' + o.id + '">Perspective</label><select class="select obj-persp" id="op-' + o.id + '" data-obj="' + o.id + '" data-field="perspective">' + options(persp, o.perspective, 'Perspective') + '</select>' +
-      '<button type="button" class="btn btn-ghost btn-icon btn-sm" data-remove-obj="' + o.id + '" aria-label="Remove objective ' + (k + 1) + '"' + (review.objectives.length === 1 ? ' disabled' : '') + '>' + icon('trash', 'icon-sm') + '</button></div>';
-  }
-
-  function riskCard2(r, k) {
-    var R = Rating.forRisk(r);
-    var domains = REF.DOMAINS.map(function (d) { return d.name; });
-    var imps = REF.IMPACT.map(function (x) { return { value: x.name, label: x.level ? x.name + ' (' + x.level + ')' : x.name }; });
-    var liks = REF.LIKELIHOOD.map(function (x) { return { value: x.name, label: x.level ? x.name + ' (' + x.level + ')' : x.name }; });
-    return '<article class="risk-card" id="risk-' + r.id + '">' +
-      '<header class="risk-card-head"><span class="risk-num">Risk ' + (k + 1) + '</span><span data-live="band:' + r.id + '">' + (R.band ? u.bandChip(R.band) : '') + '</span>' +
-      '<span class="grow"></span><button type="button" class="btn btn-ghost btn-sm btn-danger" data-remove-risk="' + r.id + '">' + icon('trash', 'icon-sm') + 'Remove</button></header>' +
-      '<div class="risk-card-body">' +
-      '<div class="field">' + label(fid(r.id, 'statement'), 'Risk statement', true) +
-      '<textarea class="textarea" rows="2" id="' + fid(r.id, 'statement') + '" data-risk="' + r.id + '" data-risk-id="' + r.id + '" data-field="statement" data-assist="riskStatement" data-required placeholder="[EVENT] due to [CAUSES] resulting in [CONSEQUENCES]">' + esc(r.statement) + '</textarea>' +
-      '<span class="field-error">Describe the risk event and its causes.</span><span data-live="struct:' + r.id + '">' + structureChip(r.statement) + '</span></div>' +
-      '<div class="field">' + label(fid(r.id, 'consequence'), 'Potential consequence(s) if risk occurs', true) +
-      '<textarea class="textarea" rows="2" id="' + fid(r.id, 'consequence') + '" data-risk="' + r.id + '" data-risk-id="' + r.id + '" data-field="consequence" data-assist="consequence" data-required placeholder="Describe what would happen if the identified risk occurs">' + esc(r.consequence) + '</textarea><span class="field-error">Describe the potential consequences.</span></div>' +
-      '<div class="form-grid cols-3">' +
-      '<div class="field">' + label(fid(r.id, 'domain'), 'Risk domain', true, infoBtn('domains', r.id)) + '<select class="select" id="' + fid(r.id, 'domain') + '" data-risk="' + r.id + '" data-field="domain" data-required>' + options(domains, r.domain, 'Select domain') + '</select><span class="field-error">Select a domain.</span></div>' +
-      '<div class="field">' + label(fid(r.id, 'impact'), 'Impact', true, infoBtn('impact', r.id)) + '<select class="select" id="' + fid(r.id, 'impact') + '" data-risk="' + r.id + '" data-field="impact" data-required>' + options(imps, r.impact, 'Select impact') + '</select><span class="field-error">Select the impact.</span></div>' +
-      '<div class="field">' + label(fid(r.id, 'likelihood'), 'Likelihood', true, infoBtn('likelihood', r.id)) + '<select class="select" id="' + fid(r.id, 'likelihood') + '" data-risk="' + r.id + '" data-field="likelihood" data-required>' + options(liks, r.likelihood, 'Select likelihood') + '</select><span class="field-error">Select the likelihood.</span></div>' +
-      '</div>' +
-      '<div class="field">' + label(fid(r.id, 'owner'), 'Risk owner(s)', true) + '<input class="input" id="' + fid(r.id, 'owner') + '" data-risk="' + r.id + '" data-field="owner" data-required value="' + esc(r.owner) + '" placeholder="Name and designation of the person responsible for managing this risk"><span class="field-error">Identify who is responsible for managing this risk.</span></div>' +
-      '</div></article>';
-  }
-
-  function renderStep2() {
-    return stepHead(2) +
-      '<section class="card form-card"><div class="section-head"><div><h3>Objectives</h3><p>What this project, area or programme must achieve. Remember S.M.A.R.T.: specific, measurable, attainable, relevant and timely.</p></div><span class="muted num">' + review.objectives.length + ' of 10</span></div>' +
-      '<div class="obj-list">' + review.objectives.map(objectiveRow).join('') + '</div>' +
-      (review.objectives.length < 10 ? '<button type="button" class="btn btn-sm add-btn" id="add-obj">' + icon('plus', 'icon-sm') + 'Add objective</button>' : '') + '</section>' +
-      '<div class="section-head section-head-out"><div><h3>Identified risks</h3><p>Rate impact and likelihood without considering any controls. Risks you add here flow automatically into every later step.</p></div><span class="muted num">' + u.plural(review.risks.length, 'risk') + '</span></div>' +
-      '<div class="risk-list-edit">' + review.risks.map(riskCard2).join('') + '</div>' +
-      (review.risks.length < 100 ? '<button type="button" class="btn add-risk" id="add-risk">' + icon('plus') + 'Add risk</button>' : '');
-  }
-
-  /* ---------- Step 3 ---------- */
-  function renderStep3() {
-    var effs = REF.EFFECTIVENESS.map(function (e) { return { value: e.name, label: e.name + ' (' + e.desc.toLowerCase() + ')' }; });
-    return stepHead(3) + (review.risks.length ? '<div class="callout callout-info compact">' + icon('info', 'icon-sm') + '<span>Risks identified in Step 2 appear here automatically. If you add, remove or edit a risk in Step 2, this step updates with it.</span></div>' : '') +
-      review.risks.map(function (r) {
-        return '<article class="risk-card" id="risk-' + r.id + '">' + riskContext(r, { details: true }) + '<div class="risk-card-body">' +
-          '<div class="form-grid cols-split">' +
-          '<div class="field">' + label(fid(r.id, 'currentControls'), 'Current controls', true) +
-          '<textarea class="textarea" rows="4" id="' + fid(r.id, 'currentControls') + '" data-risk="' + r.id + '" data-risk-id="' + r.id + '" data-field="currentControls" data-assist="currentControls" data-required placeholder="Controls already in place, one per line">' + esc(r.currentControls) + '</textarea>' +
-          '<span class="field-hint">List each control on its own line.</span><span class="field-error">Describe the current controls.</span></div>' +
-          '<div class="stack gap-12"><div class="field">' + label(fid(r.id, 'currentEff'), 'Current controls effectiveness', true, infoBtn('effectiveness', r.id)) +
-          '<select class="select" id="' + fid(r.id, 'currentEff') + '" data-risk="' + r.id + '" data-field="currentEff" data-required>' + options(effs, r.currentEff, 'Select effectiveness') + '</select><span class="field-error">Rate the effectiveness of current controls.</span></div>' +
-          '<div data-live="cur:' + r.id + '">' + currentPanel(r) + '</div></div>' +
-          '</div></div></article>';
-      }).join('') + emptyRisks();
-  }
-
-  /* ---------- Step 4 ---------- */
-  function renderStep4() {
-    var improve = REF.CONTROL_CHANGE.filter(function (c) { return c.value >= 0; }).map(function (c) { return { value: c.name, label: c.name }; });
-    var decrease = REF.CONTROL_CHANGE.filter(function (c) { return c.value < 0; }).map(function (c) { return { value: c.name, label: c.name }; });
-    return stepHead(4) +
-      (review.risks.length ? '<div class="callout compact">' + icon('info', 'icon-sm') + '<span>Additional controls should be considered where current controls cannot adequately control the risk, or where new measures can be added. They can also be opportunities to improve productivity, operational efficiency and quality.</span></div>' : '') +
-      review.risks.map(function (r) {
-        var cur = Rating.current(r.impact, r.likelihood, r.currentEff);
-        var flag = cur && Rating.needsAdditionalControls(cur.label) ?
-          '<div class="flag flag-' + Rating.adequacyKey(cur.label) + '">' + icon('flag', 'icon-sm') + '<span>' + esc(cur.label) + ': additional controls recommended</span></div>' : '';
-        return '<article class="risk-card" id="risk-' + r.id + '">' + riskContext(r, { current: true }) + '<div class="risk-card-body">' + flag +
-          '<div class="form-grid cols-split">' +
-          '<div class="stack gap-12"><div class="field">' + label(fid(r.id, 'addControls'), 'Additional controls') +
-          '<textarea class="textarea" rows="4" id="' + fid(r.id, 'addControls') + '" data-risk="' + r.id + '" data-risk-id="' + r.id + '" data-field="addControls" data-assist="additionalControls" placeholder="New or improved controls, one per line. Leave blank if none.">' + esc(r.addControls) + '</textarea>' +
-          '<span class="field-hint">Optional. List each control on its own line.</span></div>' +
-          '<div class="form-grid">' +
-          '<div class="field">' + label(fid(r.id, 'targetDate'), 'Target completion date', !!r.addControls.trim()) + '<input class="input" type="date" id="' + fid(r.id, 'targetDate') + '" data-risk="' + r.id + '" data-field="targetDate"' + (r.addControls.trim() ? ' data-required' : '') + ' value="' + esc(r.targetDate) + '"><span class="field-error">Enter the target date.</span></div>' +
-          '<div class="field">' + label(fid(r.id, 'actionBy'), 'Action by', !!r.addControls.trim()) + '<input class="input" id="' + fid(r.id, 'actionBy') + '" data-risk="' + r.id + '" data-field="actionBy"' + (r.addControls.trim() ? ' data-required' : '') + ' value="' + esc(r.actionBy) + '" placeholder="Person implementing the controls"><span class="field-error">Enter who will implement the controls.</span></div>' +
-          '</div></div>' +
-          '<div class="stack gap-12"><div class="field">' + label(fid(r.id, 'addChange'), 'Additional controls effectiveness', !!r.addControls.trim(), infoBtn('effectiveness', r.id)) +
-          '<select class="select" id="' + fid(r.id, 'addChange') + '" data-risk="' + r.id + '" data-field="addChange"' + (r.addControls.trim() ? ' data-required' : '') + '><option value="">Select effect on controls</option>' +
-          '<optgroup label="Improvement">' + options(improve, r.addChange) + '</optgroup><optgroup label="Decrease">' + options(decrease, r.addChange) + '</optgroup></select>' +
-          '<span class="field-error">Rate the effect of the additional controls.</span></div>' +
-          '<div class="rating-panel" data-live="after:' + r.id + '">' + afterPanel(r) + '</div></div>' +
-          '</div></div></article>';
-      }).join('') + emptyRisks();
-  }
-
-  /* ---------- Step 5 ---------- */
-  function renderStep5() {
-    return stepHead(5) +
-      (review.risks.length ? '<div class="callout callout-info compact">' + icon('target', 'icon-sm') + '<span>Complete the KRM Plan even where there are no additional controls. Key indicators show how well each risk is managed and raise an early alert before it turns into a major risk event.</span></div>' : '') +
-      review.risks.map(function (r) {
-        var cc = u.lines(r.currentControls), ac = u.lines(r.addControls);
-        return '<article class="risk-card" id="risk-' + r.id + '">' + riskContext(r) +
-          '<div class="krm-context"><div><h4>Current controls</h4>' + (cc.length ? '<ul>' + cc.map(function (c) { return '<li>' + esc(c) + '</li>'; }).join('') + '</ul>' : '<p class="muted">None recorded</p>') + '</div>' +
-          '<div><h4>Additional controls' + (r.targetDate && ac.length ? ' <span class="muted">by ' + u.fmtDate(r.targetDate) + '</span>' : '') + '</h4>' + (ac.length ? '<ul>' + ac.map(function (c) { return '<li>' + esc(c) + '</li>'; }).join('') + '</ul>' : '<p class="muted">None proposed</p>') + '</div></div>' +
-          '<div class="risk-card-body"><div class="field">' + label(fid(r.id, 'kri'), 'Key risk indicators (threshold) / key outcome measures (target)', true) +
-          '<textarea class="textarea" rows="3" id="' + fid(r.id, 'kri') + '" data-risk="' + r.id + '" data-risk-id="' + r.id + '" data-field="kri" data-assist="kri" data-required placeholder="e.g. Dispensing errors per 10,000 items (threshold: > 0.5)">' + esc(r.kri) + '</textarea>' +
-          '<span class="field-hint">One indicator per line. State the threshold for a KRI or the target for an outcome measure.</span><span class="field-error">Add at least one indicator.</span></div>' +
-          '<div class="form-grid">' +
-          '<div class="field">' + label(fid(r.id, 'frequency'), 'Frequency of tracking', true) + '<select class="select" id="' + fid(r.id, 'frequency') + '" data-risk="' + r.id + '" data-field="frequency" data-required>' + options(REF.FREQUENCIES, r.frequency, 'Select frequency') + '</select><span class="field-error">Select how often it is tracked.</span></div>' +
-          '<div class="field">' + label(fid(r.id, 'monitoredBy'), 'Monitored by', true) + '<input class="input" id="' + fid(r.id, 'monitoredBy') + '" data-risk="' + r.id + '" data-field="monitoredBy" data-required value="' + esc(r.monitoredBy) + '" placeholder="Person in charge of tracking"><span class="field-error">Enter who will monitor the indicators.</span></div>' +
-          '</div><div data-live="mon:' + r.id + '">' + monitorWarning(r) + '</div></div></article>';
-      }).join('') + emptyRisks();
-  }
-
-  function emptyRisks() {
-    if (review.risks.length) return '';
-    return '<div class="card"><div class="empty">' + icon('list-checks') + '<h3>No risks identified yet</h3><p>Identify risks in Step 2. They will appear here automatically.</p><p style="margin-top:14px"><button class="btn" data-goto="2">Go to Step 2</button></p></div></div>';
-  }
-
-  /* ---------- Step 6 ---------- */
-  function fyShort(p) { return p ? p.replace(/^FY\d{2}(\d{2})Q(\d)$/, 'FY$1Q$2') : ''; }
-
-  function prefillKrm() {
-    var k = review.krm;
-    if (k.prefilled) return;
-    k.submitterName = k.submitterName || user.name;
-    k.submitterDesignation = k.submitterDesignation || user.designation;
-    k.contact = k.contact || user.phone + ' / ' + user.email;
-    k.date = k.date || u.todayISO();
-    k.period = k.period || fyShort(review.info.period);
-    k.prefilled = true;
-    touch();
+  function step5() {
+    return head(5) + infoCallout() + review.risks.map(function (r) {
+      return '<article class="risk-card">' + riskContext(r) + '<div class="risk-card-body">' +
+        textarea('r-' + r.id + '-kri', rb(r, 'kri'), 'Key risk indicators (threshold) / key outcome measures (target)', true, 'Enter indicators (one per line)', 'kri') +
+        '<div class="form-grid">' + select('r-' + r.id + '-fq', rb(r, 'frequency'), 'Frequency of tracking', true, 'Select frequency') +
+        input('r-' + r.id + '-mb', rb(r, 'monitoredBy'), 'Monitored by', true, 'Enter person monitoring the indicators') + '</div>' +
+        '</div></article>';
+    }).join('');
   }
 
   function krmDoc() {
-    var i = review.info, k = review.krm;
-    var objs = review.objectives.filter(function (o) { return o.text.trim(); });
     var objCells = '';
-    for (var n = 0; n < 10; n++) objCells += '<div class="kd-obj"><span class="num">' + (n + 1) + ')</span> ' + (objs[n] ? esc(objs[n].text) : '') + '</div>';
-    function line(v) { return v ? esc(v) : '&nbsp;'; }
-    return '<div class="krm-doc" id="krm-doc">' +
-      '<div class="kd-class">Restricted, Sensitive (Normal)</div>' +
-      '<div class="kd-top"><div class="kd-fields">' +
-      '<div class="kd-field"><span class="kd-value">' + line((i.institution ? REF.institutionName(i.institution) : '') + (i.department ? ' / ' + i.department : '')) + '</span><span class="kd-label">Institution / Department</span></div>' +
-      '<div class="kd-field"><span class="kd-value">' + line([k.endorserName, k.endorserDesignation].filter(Boolean).join(', ')) + '</span><span class="kd-label">Signature / Name / Designation</span></div>' +
-      '<div class="kd-row"><div class="kd-field"><span class="kd-value">' + line(k.endorsementDate ? u.fmtDate(k.endorsementDate) : '') + '</span><span class="kd-label">Date of endorsement</span></div>' +
-      '<div class="kd-field"><span class="kd-value">' + line(k.period) + '</span><span class="kd-label">Reporting period (in FYXXQX format)</span></div></div>' +
-      '</div><h2 class="kd-title">Key Risk Mitigation (KRM) Plan</h2><div class="kd-fields">' +
-      '<div class="kd-field"><span class="kd-value">' + line([k.submitterName, k.submitterDesignation].filter(Boolean).join(', ')) + '</span><span class="kd-label">Name and designation of staff submitting plan</span></div>' +
-      '<div class="kd-field"><span class="kd-value">' + line(k.contact) + '</span><span class="kd-label">Contact / Phone / Email</span></div>' +
-      '<div class="kd-field"><span class="kd-value">' + line(k.date ? u.fmtDate(k.date) : '') + '</span><span class="kd-label">Date</span></div>' +
-      '</div></div>' +
-      '<div class="kd-objectives"><div class="kd-objectives-label">Objectives</div><div class="kd-obj-grid">' + objCells + '</div></div>' +
-      '<table class="kd-table"><thead><tr><th>Risks</th><th>Current controls</th><th>Additional controls (describe)</th><th>Target date of additional control completion</th><th>Key Risk Indicators (KRI) tracked (indicate threshold) / Key Outcome Measures tracked (indicate target)</th><th>Frequency of tracking</th><th>Monitored by</th><th>Remarks</th></tr></thead><tbody>' +
-      (review.risks.length ? review.risks.map(function (r) {
-        function ul(text) { var l = u.lines(text); return l.length > 1 ? '<ul>' + l.map(function (x) { return '<li>' + esc(x) + '</li>'; }).join('') + '</ul>' : esc(l[0] || ''); }
-        return '<tr><td>' + esc(r.statement) + '</td><td>' + ul(r.currentControls) + '</td><td>' + ul(r.addControls) + '</td><td>' + (r.addControls.trim() && r.targetDate ? u.fmtDate(r.targetDate) : '') + '</td>' +
-          '<td>' + ul(r.kri) + '</td><td>' + esc(r.frequency) + '</td><td>' + esc(r.monitoredBy) + '</td>' +
-          '<td>' + (readOnly ? esc(r.remarks || '') : '<textarea class="kd-remarks no-print-border" rows="2" data-risk="' + r.id + '" data-field="remarks" aria-label="Remarks for risk ' + riskIndex(r.id) + '">' + esc(r.remarks || '') + '</textarea><span class="print-only">' + esc(r.remarks || '') + '</span>') + '</td></tr>';
-      }).join('') : '<tr><td colspan="8" class="muted">No risks identified.</td></tr>') +
-      '</tbody></table></div>';
+    for (var n = 0; n < 10; n++) {
+      var o = review.objectives[n];
+      objCells += '<div class="kd-obj">' + (n + 1) + ') ' + (o && o.text.trim() ? esc(o.text) : '') + '</div>';
+    }
+    function cell(v, w) { return v && v.trim() ? esc(v).replace(/\n/g, '<br>') : '<span class="ph ph-sm ph-w' + w + '"></span>'; }
+    var rows = review.risks.map(function (r) {
+      return '<tr><td>' + cell(r.statement, 90) + '</td><td>' + cell(r.currentControls, 80) + '</td><td>' + cell(r.addControls, 80) + '</td><td>' + cell(r.targetDate, 70) +
+        '</td><td>' + cell(r.kri, 90) + '</td><td>' + cell(r.frequency, 70) + '</td><td>' + cell(r.monitoredBy, 80) + '</td><td></td></tr>';
+    }).join('');
+    function line(lbl) { return '<div class="kd-field"><span class="kd-line"></span><span class="kd-label">' + lbl + '</span></div>'; }
+    return '<div class="krm-doc"><div class="kd-top"><div class="kd-fields">' + line('Institution / Department') + line('Signature / Name / Designation') + line('Date of endorsement') + line('Reporting period (FYXXQX)') + '</div>' +
+      '<h2 class="kd-title">Key Risk Mitigation (KRM) Plan</h2><div class="kd-fields">' + line('Name and designation of staff submitting plan') + line('Contact / Phone / Email') + line('Date') + '</div></div>' +
+      '<div class="kd-objectives"><span class="kd-label">Objectives</span><div class="kd-obj-grid">' + objCells + '</div></div>' +
+      '<div class="table-wrap"><table class="kd-table"><thead><tr><th>Risks</th><th>Current controls</th><th>Additional controls</th><th>Target date of additional control completion</th><th>Key risk indicators (threshold) / Key outcome measures (target)</th><th>Frequency of tracking</th><th>Monitored by</th><th>Remarks</th></tr></thead><tbody>' + rows + '</tbody></table></div></div>';
   }
 
-  function outstandingList(p) {
-    var groups = p.steps.slice(0, 6).map(function (s, idx) { return { n: idx + 1, s: s }; }).filter(function (g) { return g.s.issues.length; });
-    if (!groups.length) return '';
-    return '<div class="callout callout-warning outstanding">' + icon('alert') + '<div><strong>Complete these items before submitting</strong><ul>' +
-      groups.map(function (g) {
-        return g.s.issues.slice(0, 6).map(function (iss) {
-          return '<li><button class="link-btn" data-goto="' + g.n + '"' + (iss.riskId ? ' data-risk-target="' + iss.riskId + '"' : '') + '>' + (g.n <= 5 ? 'Step ' + g.n : 'Plan details') + '</button><span>' + esc(iss.msg) + '</span></li>';
-        }).join('') + (g.s.issues.length > 6 ? '<li><span class="muted">and ' + (g.s.issues.length - 6) + ' more in ' + (g.n <= 5 ? 'Step ' + g.n : 'plan details') + '</span></li>' : '');
-      }).join('') + '</ul></div></div>';
+  function step6() {
+    return head(6) + '<section class="card form-card no-print"><h3 class="section-title">Plan details</h3><div class="form-grid">' +
+      input('k-name', 'data-bind="krm.name"', 'Name of staff submitting plan', true, 'Enter name') +
+      input('k-desig', 'data-bind="krm.designation"', 'Designation', true, 'Enter designation') +
+      input('k-contact', 'data-bind="krm.contact"', 'Contact / phone / email', true, 'Enter contact details') +
+      input('k-period', 'data-bind="krm.period"', 'Reporting period', true, 'FYXXQX') +
+      input('k-hod', 'data-bind="krm.hod"', 'Endorsed by (Head of Department)', false, 'Enter name') +
+      input('k-edate', 'data-bind="krm.endorsementDate"', 'Date of endorsement', false, '', 'date') +
+      '</div></section>' +
+      '<section class="card krm-card"><div class="krm-actions no-print"><h3>Generated KRM Plan</h3><div class="row gap-8">' +
+      '<button class="btn" id="btn-print">' + icon('printer') + 'Print KRM plan</button>' +
+      '<button class="btn btn-primary" id="btn-submit">' + icon('send') + 'Submit to risk register</button></div></div>' +
+      '<div class="krm-scroll">' + krmDoc() + '</div></section>';
   }
 
-  function renderStep6() {
-    if (!readOnly) prefillKrm();
-    var k = review.krm, p = Store.progress(review);
-    var submittedBanner = readOnly ? '<div class="submitted-banner">' + icon('check-circle', 'icon-lg') + '<div><strong>Submitted to the risk register</strong><span>' + u.plural(review.risks.length, 'risk') + (review.risks.length === 1 ? ' from this review was' : ' from this review were') + ' added to the ' + esc(review.info.department) + ' risk register on ' + esc(u.fmtDate(new Date(review.submittedAt))) + ' and now appear on the dashboard. This review is read only.</span></div>' +
-      '<a class="btn" href="dashboard.html">View dashboard</a></div>' : '';
-    var form = readOnly ? '' : '<section class="card form-card"><div class="section-head"><div><h3>Plan details</h3><p>These appear in the header of the printed KRM Plan.</p></div></div><div class="form-grid">' +
-      '<div class="field">' + label('k-name', 'Name of staff submitting plan', true) + '<input class="input" id="k-name" data-bind="krm.submitterName" data-required value="' + esc(k.submitterName || '') + '"><span class="field-error">Enter your name.</span></div>' +
-      '<div class="field">' + label('k-desig', 'Designation', true) + '<input class="input" id="k-desig" data-bind="krm.submitterDesignation" data-required value="' + esc(k.submitterDesignation || '') + '"><span class="field-error">Enter your designation.</span></div>' +
-      '<div class="field">' + label('k-contact', 'Contact / phone / email', true) + '<input class="input" id="k-contact" data-bind="krm.contact" data-required value="' + esc(k.contact || '') + '"><span class="field-error">Enter your contact details.</span></div>' +
-      '<div class="field-row"><div class="field">' + label('k-date', 'Date') + '<input class="input" type="date" id="k-date" data-bind="krm.date" value="' + esc(k.date || '') + '"></div>' +
-      '<div class="field">' + label('k-period', 'Reporting period', true) + '<input class="input" id="k-period" data-bind="krm.period" data-required value="' + esc(k.period || '') + '" placeholder="FYXXQX, e.g. FY26Q3"><span class="field-error">Enter the reporting period.</span></div></div>' +
-      '<div class="field">' + label('k-endorser', 'Endorsed by (Head of Department)') + '<input class="input" id="k-endorser" data-bind="krm.endorserName" value="' + esc(k.endorserName || '') + '" placeholder="Name of HOD"><span class="field-hint">Optional. Can also be completed by hand after printing.</span></div>' +
-      '<div class="field-row"><div class="field">' + label('k-edesig', 'HOD designation') + '<input class="input" id="k-edesig" data-bind="krm.endorserDesignation" value="' + esc(k.endorserDesignation || '') + '"></div>' +
-      '<div class="field">' + label('k-edate', 'Date of endorsement') + '<input class="input" type="date" id="k-edate" data-bind="krm.endorsementDate" value="' + esc(k.endorsementDate || '') + '"></div></div>' +
-      '</div></section>';
-    var actions = '<div class="krm-actions no-print"><div><h3>Generated KRM Plan</h3><p class="muted">Matches the SingHealth KRM Plan endorsement format.' + (readOnly ? '' : ' Add remarks directly in the plan.') + '</p></div><div class="row gap-8">' +
-      '<button class="btn" id="btn-print">' + icon('printer') + 'Print KRM Plan</button>' +
-      (readOnly ? '' : '<button class="btn btn-primary" id="btn-submit">' + icon('send') + 'Submit to risk register</button>') + '</div></div>';
-    return '<div class="no-print">' + stepHead(6) + '</div>' + submittedBanner + (readOnly ? '' : '<div id="outstanding">' + outstandingList(p) + '</div>') + form +
-      '<section class="card krm-card">' + actions + '<div class="krm-scroll">' + krmDoc() + '</div></section>';
+  /* ---------- Render ---------- */
+  function renderMeta() {
+    var i = review.info;
+    var place = [i.department, i.institution].filter(function (x) { return x && x.trim(); }).join(', ');
+    u.qs('#rv-meta').innerHTML = esc(review.id) + '<span class="sep">|</span>' + (place ? esc(place) : '<span class="ph ph-inline" style="width:180px"></span>');
   }
 
-  /* ---------- Stepper & footer ---------- */
   function renderStepper() {
-    var p = Store.progress(review);
-    var nav = u.qs('#stepper');
-    var html = '<ol>' + STEP_META.map(function (m, idx) {
-      var n = idx + 1, s = p.steps[idx];
-      var optional = n === 4 && !s.issues.length && !s.warnings.length && !review.risks.some(function (r) { return r.addControls.trim(); });
-      var done = !s.issues.length && !optional;
-      var cls = n === step ? ' is-current' : '';
-      cls += done ? ' is-done' : '';
-      var sub = readOnly ? 'Complete' : n === step ? (s.issues.length ? u.plural(s.issues.length, 'item') + ' to complete' : 'In progress') :
-        s.issues.length ? u.plural(s.issues.length, 'item') + ' to complete' : s.warnings.length ? u.plural(s.warnings.length, 'suggestion') : optional ? 'Optional' : 'Complete';
-      return '<li class="step' + cls + '"><button type="button" data-goto="' + n + '"' + (n === step ? ' aria-current="step"' : '') + '>' +
-        '<span class="step-dot">' + (done && n !== step ? icon('check', 'icon-sm') : n) + '</span>' +
-        '<span class="step-text"><span class="step-name">' + esc(m.short) + '</span><span class="step-sub">' + esc(sub) + '</span></span></button></li>';
+    u.qs('#stepper').innerHTML = '<ol>' + STEPS.map(function (s, k) {
+      var n = k + 1;
+      return '<li class="step' + (n === step ? ' is-current' : '') + '"><button data-goto="' + n + '"' + (n === step ? ' aria-current="step"' : '') + '><span class="step-num">' + n + '</span><span class="step-label">' + esc(s.label) + '</span></button></li>';
     }).join('') + '</ol>';
-    // Update existing items in place so a click in progress is never lost to a re-render.
-    var tmp = document.createElement('div');
-    tmp.innerHTML = html;
-    var oldItems = u.qsa('li.step', nav), newItems = u.qsa('li.step', tmp);
-    if (oldItems.length !== newItems.length) { nav.innerHTML = html; return; }
-    newItems.forEach(function (li, k) {
-      var o = oldItems[k], ob = o.querySelector('button'), nb = li.querySelector('button');
-      if (o.className !== li.className) o.className = li.className;
-      if (ob.innerHTML !== nb.innerHTML) ob.innerHTML = nb.innerHTML;
-      if (nb.hasAttribute('aria-current')) ob.setAttribute('aria-current', 'step'); else ob.removeAttribute('aria-current');
-    });
   }
 
   function renderFooter() {
-    var f = u.qs('#review-footer');
-    if (readOnly) { f.innerHTML = ''; f.classList.add('hidden'); return; }
-    var prev = step > 1 ? '<button class="btn" id="btn-prev">' + icon('arrow-left') + 'Back</button>' : '<span></span>';
-    var next = step < 6 ? '<button class="btn btn-primary" id="btn-next">Next: ' + esc(STEP_META[step].short) + icon('arrow-right') + '</button>' : '<span></span>';
-    f.innerHTML = prev + '<span class="footer-note" id="footer-note"></span>' + next;
-    if (step > 1) u.qs('#btn-prev').addEventListener('click', function () { go(step - 1); });
-    if (step < 6) u.qs('#btn-next').addEventListener('click', onNext);
+    u.qs('#review-footer').innerHTML = (step > 1 ? '<button class="btn" id="btn-back">' + icon('arrow-left') + 'Back</button>' : '<span></span>') +
+      (step < 6 ? '<button class="btn btn-primary" id="btn-next">Next: ' + esc(STEPS[step].label) + icon('arrow-right') + '</button>' : '<span></span>');
+    var b = u.qs('#btn-back'), n = u.qs('#btn-next');
+    if (b) b.addEventListener('click', function () { go(step - 1); });
+    if (n) n.addEventListener('click', function () { go(step + 1); });
   }
 
-  function onNext() {
-    var p = Store.progress(review);
-    var issues = p.steps[step - 1].issues;
-    if (issues.length && !nextArmed) {
-      validated[step] = true;
-      markErrors();
-      nextArmed = true;
-      var note = u.qs('#footer-note');
-      note.innerHTML = icon('alert', 'icon-sm') + '<span>' + u.plural(issues.length, 'item') + ' still to complete. Select Next again to continue and come back later.</span>';
-      note.classList.add('is-visible');
-      var firstErr = u.qs('.field.has-error', stepEl);
-      if (firstErr) { firstErr.scrollIntoView({ behavior: 'smooth', block: 'center' }); var inp = u.qs('input, textarea, select', firstErr); if (inp) setTimeout(function () { inp.focus({ preventScroll: true }); }, 300); }
-      else window.scrollTo({ top: 0, behavior: 'smooth' });
-      return;
-    }
-    go(step + 1);
-  }
-
-  /* ---------- Validation display ---------- */
-  function isEmpty(el) { return !String(el.value || '').trim(); }
-  function markErrors() {
-    if (readOnly) return;
-    u.qsa('[data-required]', stepEl).forEach(function (el) {
-      var field = el.closest('.field');
-      if (!field) return;
-      if (el.id === 'f-involved') return;
-      field.classList.toggle('has-error', !!validated[step] && isEmpty(el));
+  function fill() {
+    u.qsa('[data-bind]', stepEl).forEach(function (el) { var p = el.getAttribute('data-bind').split('.'); el.value = (review[p[0]] || {})[p[1]] || ''; });
+    u.qsa('[data-risk]', stepEl).forEach(function (el) { var r = getRisk(el.getAttribute('data-risk')); if (r) el.value = r[el.getAttribute('data-field')] || ''; });
+    u.qsa('[data-obj]', stepEl).forEach(function (el) {
+      var o = review.objectives.filter(function (x) { return x.id === el.getAttribute('data-obj'); })[0];
+      if (o) el.value = o.text;
     });
   }
 
-  /* ---------- Rendering ---------- */
   function renderStep() {
-    var html = [renderStep1, renderStep2, renderStep3, renderStep4, renderStep5, renderStep6][step - 1]();
-    stepEl.innerHTML = html;
-    u.qs('#review-layout').classList.toggle('is-wide', step === 6 || readOnly);
-    if (readOnly) lockInputs();
-    autosizeAll();
-    markErrors();
-    bindStepSpecific();
-  }
-
-  function lockInputs() {
-    u.qsa('input, textarea, select', stepEl).forEach(function (el) { el.disabled = true; });
-    u.qsa('[data-remove-risk], [data-remove-obj], #add-obj, #add-risk, .rc-edit, [data-untag]', stepEl).forEach(function (el) { el.remove(); });
-    var ti = u.qs('#f-involved', stepEl);
-    if (ti) ti.remove();
-  }
-
-  function render() {
-    renderHeader();
-    renderStepper();
-    renderStep();
-    renderFooter();
+    stepEl.innerHTML = [step1, step2, step3, step4, step5, step6][step - 1]();
+    fill();
+    u.qs('#review-layout').classList.toggle('is-wide', step === 6);
     ERMIS.Assist.reset();
+    bindStep();
   }
 
-  function go(n, focusId, riskTarget) {
-    flush();
+  function render() { renderMeta(); renderStepper(); renderStep(); renderFooter(); }
+
+  function go(n) {
     if (n < 1 || n > 6) return;
-    if (readOnly && n !== step) {
-      step = n;
-      render();
-      window.scrollTo({ top: 0 });
-      return;
-    }
-    nextArmed = false;
+    save();
     step = n;
     review.step = n;
-    touch();
     history.replaceState(null, '', 'review.html?id=' + encodeURIComponent(review.id) + '&step=' + n);
     render();
-    if (riskTarget) validated[n] = true, markErrors();
-    var target = focusId ? u.qs('#' + focusId) : riskTarget ? u.qs('#risk-' + riskTarget) : null;
-    if (target) {
-      target.scrollIntoView({ block: 'center' });
-      var inp = target.matches('input, textarea, select') ? target : u.qs('.has-error input, .has-error textarea, .has-error select', target);
-      if (inp) inp.focus({ preventScroll: true });
-    } else window.scrollTo({ top: 0 });
+    window.scrollTo(0, 0);
   }
 
-  /* ---------- Live updates ---------- */
-  function setLive(key, html) { var el = u.qs('[data-live="' + key + '"]', stepEl); if (el) el.innerHTML = html; }
-  function updateLive(r) {
-    var R = Rating.forRisk(r);
-    setLive('band:' + r.id, R.band ? u.bandChip(R.band) : '');
-    setLive('struct:' + r.id, structureChip(r.statement));
-    setLive('cur:' + r.id, currentPanel(r));
-    setLive('after:' + r.id, afterPanel(r));
-    setLive('curchip:' + r.id, R.current ? u.adequacyChip(R.current.label, R.current.display) : '');
-    setLive('mon:' + r.id, monitorWarning(r));
-  }
+  /* ---------- Data ---------- */
+  function save() { Store.saveReview(review); }
+  var saveSoon = u.debounce(save, 400);
+  window.addEventListener('pagehide', save);
 
-  function autosize(el) {
-    if (el.tagName !== 'TEXTAREA') return;
-    el.style.height = 'auto';
-    el.style.height = Math.max(el.scrollHeight + 2, el.classList.contains('obj-input') ? 38 : 0) + 'px';
-  }
-  function autosizeAll() { u.qsa('textarea', stepEl).forEach(autosize); }
-
-  function onFieldInput(e) {
+  function onInput(e) {
     var el = e.target;
-    if (readOnly) return;
-    var bind = el.getAttribute('data-bind');
-    if (bind) {
-      var parts = bind.split('.');
-      review[parts[0]][parts[1]] = el.value;
-      if (bind === 'info.title' || bind === 'info.institution' || bind === 'info.department') renderHeader();
+    if (el.hasAttribute('data-bind')) {
+      var p = el.getAttribute('data-bind').split('.');
+      review[p[0]][p[1]] = el.value;
+      if (p[0] === 'info') renderMeta();
     } else if (el.hasAttribute('data-risk')) {
       var r = getRisk(el.getAttribute('data-risk'));
-      if (!r) return;
-      var f = el.getAttribute('data-field');
-      r[f] = el.value;
-      updateLive(r);
-      if (step === 4 && f === 'addControls') toggleStep4Required(r, el);
+      if (r) r[el.getAttribute('data-field')] = el.value;
     } else if (el.hasAttribute('data-obj')) {
-      var o = getObj(el.getAttribute('data-obj'));
-      if (o) o[el.getAttribute('data-field')] = el.value;
+      var o = review.objectives.filter(function (x) { return x.id === el.getAttribute('data-obj'); })[0];
+      if (o) o.text = el.value;
     } else return;
-    autosize(el);
-    touch();
-    nextArmed = false;
-    var note = u.qs('#footer-note');
-    if (note) note.classList.remove('is-visible');
-    if (validated[step]) {
-      var field = el.closest('.field');
-      if (field && el.hasAttribute('data-required')) field.classList.toggle('has-error', isEmpty(el));
-    }
-    renderStepperDebounced();
-    if (step === 6) renderPlanDebounced();
+    saveSoon();
   }
+  stepEl.addEventListener('input', onInput);
+  stepEl.addEventListener('change', onInput);
 
-  function toggleStep4Required(r, el) {
-    var card = el.closest('.risk-card');
-    var on = !!r.addControls.trim();
-    ['targetDate', 'actionBy', 'addChange'].forEach(function (f) {
-      var inp = u.qs('#' + fid(r.id, f), card);
-      if (!inp) return;
-      if (on) inp.setAttribute('data-required', ''); else { inp.removeAttribute('data-required'); inp.closest('.field').classList.remove('has-error'); }
-      var lbl = u.qs('.field-label', inp.closest('.field'));
-      var star = u.qs('.req', lbl);
-      if (on && !star) u.qs('label', lbl).insertAdjacentHTML('afterend', '<span class="req" aria-hidden="true">*</span>');
-      if (!on && star) star.remove();
-    });
-  }
-
-  var renderStepperDebounced = u.debounce(renderStepper, 250);
-  var renderPlanDebounced = u.debounce(function () {
-    var doc = u.qs('#krm-doc');
-    if (!doc) return;
-    var active = document.activeElement;
-    var activeRisk = active && active.classList.contains('kd-remarks') ? active.getAttribute('data-risk') : null;
-    var pos = activeRisk ? active.selectionStart : 0;
-    doc.outerHTML = krmDoc();
-    u.qsa('.kd-remarks', stepEl).forEach(autosize);
-    if (activeRisk) {
-      var again = u.qs('.kd-remarks[data-risk="' + activeRisk + '"]');
-      if (again) { again.focus(); again.setSelectionRange(pos, pos); }
-    }
-    var out = u.qs('#outstanding');
-    if (out) out.innerHTML = outstandingList(Store.progress(review));
-  }, 300);
-
-  stepEl.addEventListener('input', onFieldInput);
-  stepEl.addEventListener('change', function (e) { if (e.target.tagName === 'SELECT' || e.target.type === 'date') onFieldInput(e); });
-
-  /* ---------- Clicks ---------- */
-  document.addEventListener('click', function (e) {
-    var g = e.target.closest('[data-goto]');
-    if (g && (stepEl.contains(g) || u.qs('#stepper').contains(g))) {
-      e.preventDefault();
-      go(+g.getAttribute('data-goto'), g.getAttribute('data-focus'), g.getAttribute('data-risk-target'));
-      return;
-    }
-    var info = e.target.closest('.info-btn');
-    if (info) {
-      var risk = getRisk(info.getAttribute('data-risk-id'));
-      ERMIS.Shell.openReference(info.getAttribute('data-ref'), { domain: risk ? risk.domain : '' });
-      return;
-    }
-    if (readOnly) return;
-    var rr = e.target.closest('[data-remove-risk]');
-    if (rr) { removeRisk(rr.getAttribute('data-remove-risk')); return; }
-    var ro = e.target.closest('[data-remove-obj]');
-    if (ro) {
-      review.objectives = review.objectives.filter(function (o) { return o.id !== ro.getAttribute('data-remove-obj'); });
-      touch(); renderStep(); renderStepper();
-      return;
-    }
-    if (e.target.closest('#add-obj')) {
-      var o = { id: u.uid('obj'), text: '', perspective: '' };
-      review.objectives.push(o);
-      touch(); renderStep(); renderStepper();
-      u.qs('#o-' + o.id).focus();
-      return;
-    }
-    if (e.target.closest('#add-risk')) {
+  function bindStep() {
+    var addRisk = u.qs('#add-risk'), addObj = u.qs('#add-obj');
+    if (addRisk) addRisk.addEventListener('click', function () {
       var r = Store.blankRisk();
       review.risks.push(r);
-      touch(); renderStep(); renderStepper();
-      var t = u.qs('#' + fid(r.id, 'statement'));
-      t.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      save(); renderStep();
+      var t = u.qs('#r-' + r.id + '-statement');
+      t.scrollIntoView({ block: 'center' });
       t.focus({ preventScroll: true });
-      return;
-    }
-    var ut = e.target.closest('[data-untag]');
-    if (ut) {
-      review.info.involved.splice(+ut.getAttribute('data-untag'), 1);
-      touch(); renderTags();
-      u.qs('#f-involved').focus();
-      return;
-    }
-    if (e.target.closest('#tag-input') && !e.target.closest('button')) { var ti = u.qs('#f-involved'); if (ti) ti.focus(); }
-  });
-
-  function riskHasLaterData(r) {
-    return !!(r.currentControls.trim() || r.currentEff || r.addControls.trim() || r.kri.trim() || r.monitoredBy.trim());
-  }
-
-  function removeRisk(id) {
-    var r = getRisk(id), idx = riskIndex(id);
-    var doRemove = function () {
-      review.risks = review.risks.filter(function (x) { return x.id !== id; });
-      touch(); renderStep(); renderStepper();
-      ERMIS.Shell.toast('Risk ' + idx + ' removed from all steps');
-    };
-    var hasContent = r.statement.trim() || r.consequence.trim() || riskHasLaterData(r);
-    if (!hasContent) return doRemove();
-    ERMIS.Shell.confirm({
-      title: 'Remove Risk ' + idx + '?',
-      message: riskHasLaterData(r) ? 'Its current controls, ratings and KRM Plan entries in later steps will also be removed. Remaining risks are renumbered automatically.' : 'This risk will be removed from the review. Remaining risks are renumbered automatically.',
-      confirmLabel: 'Remove risk', danger: true
-    }).then(function (ok) { if (ok) doRemove(); });
-  }
-
-  function bindStepSpecific() {
-    var ti = u.qs('#f-involved');
-    if (ti) {
-      ti.addEventListener('keydown', function (e) {
-        if ((e.key === 'Enter' || e.key === ',') && ti.value.trim()) {
-          e.preventDefault();
-          var v = ti.value;
-          ti.value = '';
-          addTag(v);
-        } else if (e.key === 'Enter') {
-          e.preventDefault();
-        } else if (e.key === 'Backspace' && !ti.value && review.info.involved.length) {
-          review.info.involved.pop();
-          touch(); renderTags();
-        }
+    });
+    if (addObj) addObj.addEventListener('click', function () {
+      var o = { id: u.uid('obj'), text: '' };
+      review.objectives.push(o);
+      save(); renderStep();
+      u.qs('#o-' + o.id).focus();
+    });
+    u.qsa('[data-remove-risk]', stepEl).forEach(function (b) {
+      b.addEventListener('click', function () {
+        var id = b.getAttribute('data-remove-risk');
+        var n = riskNo(getRisk(id));
+        ERMIS.Shell.confirm({ title: 'Remove Risk ' + n + '?', message: 'It will also be removed from all later steps.', confirmLabel: 'Remove risk' }).then(function (ok) {
+          if (!ok) return;
+          review.risks = review.risks.filter(function (x) { return x.id !== id; });
+          save(); renderStep();
+          ERMIS.Shell.toast('Risk ' + n + ' removed from all steps');
+        });
       });
-      ti.addEventListener('blur', function () {
-        var v = ti.value;
-        ti.value = '';
-        addTag(v);
+    });
+    u.qsa('[data-remove-obj]', stepEl).forEach(function (b) {
+      b.addEventListener('click', function () {
+        review.objectives = review.objectives.filter(function (x) { return x.id !== b.getAttribute('data-remove-obj'); });
+        save(); renderStep();
       });
-    }
+    });
     var pr = u.qs('#btn-print');
-    if (pr) pr.addEventListener('click', function () { flush(); window.print(); });
+    if (pr) pr.addEventListener('click', function () { save(); window.print(); });
     var sb = u.qs('#btn-submit');
-    if (sb) sb.addEventListener('click', submit);
-  }
-
-  function submit() {
-    flush();
-    var p = Store.progress(review);
-    if (!p.complete) {
-      validated[6] = true;
-      markErrors();
-      var out = u.qs('#outstanding');
-      out.innerHTML = outstandingList(p);
-      out.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      var c = u.qs('.outstanding', out);
-      if (c) { c.classList.remove('shake'); void c.offsetWidth; c.classList.add('shake'); }
-      return;
-    }
-    ERMIS.Shell.confirm({
-      title: 'Submit this review to the risk register?',
-      html: '<p>' + u.plural(review.risks.length, 'risk') + ' will be added to the ' + esc(review.info.department) + ' risk register and included in the risk dashboard. The review becomes read only once submitted.</p>',
-      confirmLabel: 'Submit review'
-    }).then(function (ok) {
-      if (!ok) return;
-      Store.submitReview(review.id);
-      location.href = 'dashboard.html?submitted=1';
+    if (sb) sb.addEventListener('click', function () {
+      ERMIS.Shell.confirm({ title: 'Submit this review?', message: 'The risks in this review will be added to the department risk register and shown on the dashboard.', confirmLabel: 'Submit review' }).then(function (ok) {
+        if (!ok) return;
+        review.status = 'submitted';
+        save();
+        location.href = 'dashboard.html?submitted=1';
+      });
     });
   }
 
-  /* ---------- Find similar risks (semantic search in drawer) ---------- */
-  function openSimilar(ctx, el) {
-    var risk = getRisk(el.getAttribute('data-risk-id'));
-    if (!risk) return;
-    var idx = riskIndex(risk.id);
+  document.addEventListener('click', function (e) {
+    var g = e.target.closest('#stepper [data-goto]');
+    if (g) go(+g.getAttribute('data-goto'));
+  });
+  u.qs('#btn-refs').innerHTML = icon('book') + 'References';
+  u.qs('#btn-refs').addEventListener('click', ERMIS.Shell.openReference);
+
+  /* ---------- Find similar risks (placeholder results) ---------- */
+  function openSimilar(riskId) {
+    var r = getRisk(riskId);
+    if (!r) return;
+    var n = riskNo(r);
     var controlField = step === 4 ? 'addControls' : 'currentControls';
-    var controlLabel = step === 4 ? 'Add to additional controls' : 'Add to current controls';
-    var q = risk.statement.trim() || el.value.trim() || review.info.title;
-    var d = ERMIS.Shell.drawer({ title: 'Similar risks in the register', subtitle: 'Comparable risks for Risk ' + idx + ', with the controls and indicators other teams use', wide: true });
-    d.body.innerHTML = '<form class="similar-form" id="similar-form"><div class="input-group grow">' + icon('search') + '<input class="input" name="q" value="' + esc(q) + '" aria-label="Search query"></div>' +
-      '<select class="select" name="domain" aria-label="Domain"><option value="">All domains</option>' + REF.DOMAINS.map(function (x) { return '<option' + (x.name === risk.domain ? ' selected' : '') + '>' + esc(x.name) + '</option>'; }).join('') + '</select>' +
-      '<button class="btn btn-primary" type="submit">Search</button></form><div class="results" id="similar-results"></div>';
-    var form = u.qs('#similar-form', d.body), out = u.qs('#similar-results', d.body);
-    ERMIS.SearchUI.bind(out, function (kind, text) {
-      var field = kind === 'kri' ? 'kri' : controlField;
-      var exists = u.lines(risk[field]).some(function (l) { return l.toLowerCase() === text.trim().toLowerCase(); });
-      if (exists) { ERMIS.Shell.toast('Already in Risk ' + idx + (field === 'kri' ? ' key indicators' : ' controls'), 'info'); return; }
-      risk[field] = risk[field].trim() ? risk[field].replace(/\s+$/, '') + '\n' + text : text;
-      touch();
-      var input = u.qs('#' + fid(risk.id, field));
-      if (input) { input.value = risk[field]; autosize(input); }
-      updateLive(risk);
-      renderStepperDebounced();
-      ERMIS.Shell.toast('Added to Risk ' + idx + (field === 'kri' ? ' key indicators' : field === 'addControls' ? ' additional controls' : ' current controls'));
-    });
-    function run() {
-      out.innerHTML = ERMIS.SearchUI.skeleton(3);
-      setTimeout(function () {
-        var res = ERMIS.Search.query(form.q.value, { domain: form.domain.value }, { limit: 8 });
-        res = res.filter(function (x) { return x.rec.reviewId !== review.id; });
-        out.innerHTML = res.length ? '<p class="muted similar-count">' + u.plural(res.length, 'comparable risk') + ' found, most similar first</p>' + res.map(function (x) {
-          return ERMIS.SearchUI.renderResult(x, { use: { control: controlLabel, kri: 'Add to indicators' } });
-        }).join('') : '<div class="empty">' + icon('search') + '<h3>No comparable risks found</h3><p>Try describing the risk event in different words, or search all domains.</p></div>';
-        ERMIS.SearchUI.remember(out);
-      }, 450);
+    var d = ERMIS.Shell.drawer({ title: 'Similar risks in the register', subtitle: 'Comparable risks for Risk ' + n + ', with the controls and indicators used' });
+    var results = '';
+    for (var k = 0; k < 3; k++) {
+      results += '<article class="result"><div><div class="result-chips"><span class="ph"></span><span class="ph"></span></div>' + ERMIS.Shell.phLines([100, 80]) +
+        '<div class="result-details">' +
+        '<div class="detail-row"><span class="detail-label">Control</span><span class="ph"></span><button class="btn btn-sm" data-add="control">' + icon('plus', 'icon-sm') + 'Add</button></div>' +
+        '<div class="detail-row"><span class="detail-label">Indicator</span><span class="ph"></span><button class="btn btn-sm" data-add="kri">' + icon('plus', 'icon-sm') + 'Add</button></div></div></div>' +
+        '<div class="result-score"><span class="ph ph-lg"></span><span class="result-score-label">Similarity</span></div></article>';
     }
-    form.addEventListener('submit', function (e) { e.preventDefault(); run(); });
-    form.domain.addEventListener('change', run);
-    run();
+    d.body.innerHTML = '<div class="similar-form"><div class="input-group grow">' + icon('search') + '<input class="input" placeholder="Describe the risk" value="' + esc(r.statement) + '" aria-label="Search query"></div><button class="btn btn-primary">Search</button></div>' +
+      '<p class="secondary" style="margin-bottom:12px">Risks with a similar meaning will be listed here, most similar first.</p><div class="results">' + results + '</div>';
+    u.qsa('[data-add]', d.body).forEach(function (b) {
+      b.addEventListener('click', function () {
+        var kri = b.getAttribute('data-add') === 'kri';
+        var field = kri ? 'kri' : controlField;
+        var text = kri ? '[Indicator from a similar risk]' : '[Control from a similar risk]';
+        r[field] = r[field].trim() ? r[field].replace(/\s+$/, '') + '\n' + text : text;
+        save();
+        var inp = u.qs('[data-risk="' + r.id + '"][data-field="' + field + '"]', stepEl);
+        if (inp) inp.value = r[field];
+        b.disabled = true;
+        b.innerHTML = icon('check', 'icon-sm') + 'Added';
+        ERMIS.Shell.toast('Added to Risk ' + n);
+      });
+    });
   }
 
-  /* ---------- Assist context ---------- */
-  var IDLE = {
-    1: '<div class="assist-idle"><h3>Getting started</h3><p>Capture what is being reviewed and why. A clear description and goal makes it easier to set objectives and identify risks in the next step.</p><ul><li>Select a description or goal field to see suggested wording.</li><li>Use References for the glossary and rating codes at any time.</li></ul></div>',
-    2: '<div class="assist-idle"><h3>Writing risk statements</h3><p>Express each risk as:</p><p class="formula"><b>[EVENT]</b> due to <b>[CAUSES]</b> resulting in <b>[CONSEQUENCES]</b></p><ul><li>Consider causes from both internal and external perspectives.</li><li>Rate impact and likelihood without considering any controls.</li><li>Select a risk statement, consequence or objective field for suggestions.</li></ul></div>',
-    3: '<div class="assist-idle"><h3>How the rating works</h3><p>The rating is calculated from impact, likelihood and the effectiveness of current controls:</p><p class="formula">(<b>Impact</b> + <b>Likelihood</b>) × (1 − <b>Effectiveness</b>)</p><ul><li>10 and above: under-controlled</li><li>5 to 9.9: potentially under-controlled</li><li>1.25 to 4.9: adequately controlled</li><li>Below 1.25: potentially over-controlled</li></ul></div>',
-    4: '<div class="assist-idle"><h3>When to add controls</h3><ul><li>Current controls are not able to adequately control the risk.</li><li>There are new measures or controls to add on to current controls.</li><li>There are opportunities to improve productivity, operational efficiency or quality.</li></ul><p style="margin-top:8px">Select an additional controls field for suggestions based on comparable risks.</p></div>',
-    5: '<div class="assist-idle"><h3>Good key indicators</h3><ul><li>Relevant to the specific risk or objective</li><li>Measurable using reliable data</li><li>Comparable over time</li><li>Timely, enabling early response</li><li>Actionable, so the risk owner knows what to do</li></ul><p style="margin-top:8px">Ideally, the person monitoring is different from the person implementing the controls.</p></div>',
-    6: ''
+  /* ---------- Side panel ---------- */
+  function bullets(n) {
+    var s = '<div class="bullet-ph">';
+    for (var i = 0; i < n; i++) s += '<span><span class="ph" style="width:' + (70 - i * 8) + '%"></span></span>';
+    return s + '</div>';
+  }
+  var PH = ERMIS.Shell.phLines;
+  var GUIDANCE = {
+    1: { title: 'About this step', body: PH([100, 100, 70]) + bullets(3) },
+    2: { title: 'Writing risk statements', body: PH([100, 90]) + '<div class="formula">Risk statement format:<br>[EVENT] due to [CAUSES] resulting in [CONSEQUENCES]</div>' + bullets(3) },
+    3: { title: 'How the rating works', body: PH([100, 100, 70]) + '<div class="formula">Rating formula:<br>(Impact + Likelihood) × (1 − Effectiveness)</div>' + bullets(3) },
+    4: { title: 'How the rating works', body: PH([100, 100, 70]) + '<div class="formula">Rating after control changes uses the combined effectiveness of current and additional controls.</div>' + bullets(3) },
+    5: { title: 'Good key indicators', body: PH([100, 90, 60]) + bullets(4) },
+    6: null
   };
 
-  ERMIS.Assist.init(u.qs('#assist-rail'), {
-    idle: function () { return IDLE[step]; },
+  ERMIS.Assist.init(u.qs('#rail'), {
+    guidance: function () { return GUIDANCE[step]; },
     context: function (el) {
-      var field = el.getAttribute('data-assist');
-      var risk = getRisk(el.getAttribute('data-risk-id'));
-      var objText = review.objectives.map(function (o) { return o.text; }).join(' ');
-      var ctx = { field: field, domain: risk ? risk.domain : '', label: risk ? 'Risk ' + riskIndex(risk.id) : '' };
-      if (risk) {
-        ctx.context = field === 'riskStatement' ? [risk.statement, risk.consequence, review.info.title, review.info.description].join(' ') :
-          field === 'consequence' ? risk.statement + ' ' + risk.consequence :
-            field === 'kri' ? [risk.statement, risk.currentControls, risk.addControls].join(' ') :
-              [risk.statement, risk.consequence].join(' ');
-      } else {
-        ctx.context = [review.info.title, review.info.description, review.info.vision, objText, el.value].join(' ');
-        if (field === 'objective') ctx.label = 'Objective ' + (review.objectives.findIndex(function (o) { return o.id === el.getAttribute('data-obj'); }) + 1);
-      }
-      return ctx;
+      var r = getRisk(el.getAttribute('data-risk-id'));
+      if (r) return { riskId: r.id, label: 'Risk ' + riskNo(r) };
+      var objId = el.getAttribute('data-obj');
+      if (objId) return { label: 'Objective ' + (review.objectives.findIndex(function (o) { return o.id === objId; }) + 1) };
+      return {};
     },
     onFindSimilar: openSimilar
   });
 
   render();
-  if (readOnly) setSaveState();
 })();

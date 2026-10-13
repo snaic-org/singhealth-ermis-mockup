@@ -6,15 +6,7 @@ ERMIS.Auth = (function () {
   var ACCOUNT = {
     email: 'risk.coordinator@singhealth.com.sg',
     password: 'Ermis@2026',
-    profile: {
-      name: 'Tan Wei Ling',
-      email: 'risk.coordinator@singhealth.com.sg',
-      role: 'Department Risk Coordinator',
-      designation: 'Senior Pharmacist (Risk & Quality)',
-      institution: 'SGH',
-      department: 'Pharmacy',
-      phone: '6321 4377'
-    }
+    profile: { email: 'risk.coordinator@singhealth.com.sg' }
   };
 
   function storageGet() {

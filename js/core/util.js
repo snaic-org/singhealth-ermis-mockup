@@ -118,19 +118,9 @@ ERMIS.u = (function () {
   function lines(text) { return String(text || '').split(/\n+/).map(function (s) { return s.replace(/^\s*[•\-•]\s*/, '').trim(); }).filter(Boolean); }
   function plural(n, one, many) { return n + ' ' + (n === 1 ? one : (many || one + 's')); }
 
-  function bandChip(band) {
-    if (!band) return '<span class="chip chip-neutral">Not rated</span>';
-    return '<span class="chip chip-' + ERMIS.Rating.bandKey(band) + '">' + esc(band) + '</span>';
-  }
-  function adequacyChip(label, score) {
-    if (!label) return '<span class="chip chip-neutral">Pending</span>';
-    return '<span class="chip chip-' + ERMIS.Rating.adequacyKey(label) + '">' + esc(label) + '</span>' +
-      (score != null ? ' <span class="score">' + score.toFixed(1) + '</span>' : '');
-  }
-
   return {
     icon: icon, esc: esc, fmtDate: fmtDate, parseISO: parseISO, todayISO: todayISO, daysFromToday: daysFromToday,
     relTime: relTime, uid: uid, debounce: debounce, initials: initials, qs: qs, qsa: qsa, param: param,
-    lines: lines, plural: plural, bandChip: bandChip, adequacyChip: adequacyChip
+    lines: lines, plural: plural
   };
 })();
