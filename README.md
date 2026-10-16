@@ -4,7 +4,7 @@ Low-fidelity schematic mockup for the proposed AI-enabled Enterprise Risk Manage
 
 Each screen is monochrome boxes and labels with numbered notes, baseline vs add-on scope, and working assumptions. Buttons that move to another screen are links, so the main flow can be walked through. Buttons that act on data (save, submit, export, resume) are shown but not clickable. Nothing is real data and nothing is final. Changes between versions are recorded in `versions.html`.
 
-**Confidential draft, not binding.** Rough concept mockup for discussion only; screens, scope and wording are indicative and may change. Proprietary to SNAIC. Do not copy, share or distribute without SNAIC's written permission.
+**Disclaimer:** This is a rough, early-stage concept mockup prepared by SNAIC for discussion purposes only. It gives a high-level overview of the proposed system and is not a complete or final design. Some screens, features and details may be incomplete, simplified or missing, and all content is indicative and subject to change. Nothing in this mockup forms a commitment, offer or agreement on scope, cost or delivery. This material is proprietary and confidential to SNAIC. It must not be copied, shared or distributed, in whole or in part, without SNAIC's prior written permission.
 
 ## Screens
 
