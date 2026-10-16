@@ -1,1 +1,4 @@
 .*shinit
+
+# client and internal documents, never committed
+docs/
