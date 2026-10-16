@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <title>WF-06 Data Import &middot; SingHealth ERMIS</title>
+  <link rel="stylesheet" href="wire.css">
+</head>
+<body>
+  <div class="notice">SNAIC &middot; SingHealth ERMIS Concept &middot; Confidential draft, not binding &middot; <a href="versions.html">v1.1 &middot; 16 Oct 2026</a></div>
+  <nav class="topnav" aria-label="Wireframes">
+    <a href="index.html">Index</a>
+    <a href="flow.html">Flow</a>
+    <a href="dashboard.html">Dashboard</a>
+    <a href="review.html">ERM review</a>
+    <a href="search.html">Search</a>
+    <a href="import.html" aria-current="page">Data import</a>
+    <span class="nav-sep">Add-ons:</span>
+    <a href="addon-interface.html">Enhanced Interface</a>
+    <a href="addon-analytics.html">Trend Analytics</a>
+    <a href="addon-horizon.html">Horizon Scanning</a>
+  </nav>
+
+  <main class="wrap">
+    <h1 style="margin-bottom:8px">WF-06 &middot; Data Import</h1>
+    <p class="lede">Uploads existing Excel v3.1 workbooks and flags records that need checking.</p>
+
+    <div class="layout">
+      <section class="frame">
+        <div class="frame-head"><h2>Import Completed ERM Workbooks</h2></div>
+        <div class="frame-body">
+          <div class="sec">
+            <h3 class="sec-title"><i class="n">1</i>Upload area</h3>
+            <div class="chart" style="min-height:75px"><div><strong>Drop existing SingHealth Excel workbooks (.xlsm / .xlsx) here</strong>Compatible with official SingHealth template v3.1</div></div>
+            <p class="btn-row" style="margin-top:8px"><span class="btn solid">Upload &amp; validate workbooks</span></p>
+          </div>
+
+          <div class="sec">
+            <h3 class="sec-title"><i class="n">2</i>Import check <i class="rules-tag">RULES</i></h3>
+            <div class="row cols-4" style="margin-bottom:10px">
+              <div class="stat">Total uploaded<br><strong>[ n ] files</strong></div>
+              <div class="stat">Valid<br><strong>[ n ] files</strong></div>
+              <div class="stat">Flagged issues<br><strong>[ n ] files</strong></div>
+              <div class="stat">Excluded from AI<br><strong>[ n ] files</strong></div>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Workbook Source</th>
+                    <th>Issue Type</th>
+                    <th>Detail</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>[ File name ].xlsm</td>
+                    <td><span class="chip">Missing Field</span></td>
+                    <td>[ Detail ... ]</td>
+                    <td><span class="btn sm">Edit</span> <span class="btn sm">Hold</span></td>
+                  </tr>
+                  <tr>
+                    <td>[ File name ].xlsm</td>
+                    <td><span class="chip">Formula Override</span></td>
+                    <td>[ Detail ... ]</td>
+                    <td><span class="btn sm">Recalculate with rule</span> <span class="btn sm">Hold</span></td>
+                  </tr>
+                  <tr>
+                    <td>[ File name ].xlsm</td>
+                    <td><span class="chip">Unknown Domain</span></td>
+                    <td>[ Detail ... ]</td>
+                    <td><span class="btn sm">Map to 12 domains</span> <span class="btn sm">Hold</span></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <aside class="notes" aria-label="Annotations">
+        <h2>Screen Element Description</h2>
+        <ol>
+          <li><strong>Upload area</strong>: Uploads completed ERM Tool workbooks.</li>
+          <li><strong>Import check</strong>: Counts of valid and flagged files, with the issue listed for each flagged workbook.</li>
+        </ol>
+
+        <h2>Assumption</h2>
+        <ul style="margin:0;padding-left:18px;font-size:12.5px;line-height:1.5">
+          <li><strong>Workbooks</strong>: Only the current template version (v3.1) is imported, from files supplied by SingHealth.</li>
+        </ul>
+      </aside>
+    </div>
+  </main>
+  <footer class="disclaimer">
+    <strong>Confidential draft &middot; Not binding.</strong> Rough concept mockup for discussion only. Screens, scope and wording are indicative and may change; nothing here is a commitment or a final design.
+    Proprietary to SNAIC. Do not copy, share or distribute without SNAIC's written permission.
+  </footer>
+</body>
+</html>

@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <title>WF-A3 Horizon Scanning &middot; SingHealth ERMIS</title>
+  <link rel="stylesheet" href="wire.css">
+</head>
+<body>
+  <div class="notice">SNAIC &middot; SingHealth ERMIS Concept &middot; Confidential draft, not binding &middot; <a href="versions.html">v1.1 &middot; 16 Oct 2026</a></div>
+  <nav class="topnav" aria-label="Wireframes">
+    <a href="index.html">Index</a>
+    <a href="flow.html">Flow</a>
+    <a href="dashboard.html">Dashboard</a>
+    <a href="review.html">ERM review</a>
+    <a href="search.html">Search</a>
+    <a href="import.html">Data import</a>
+    <span class="nav-sep">Add-ons:</span>
+    <a href="addon-interface.html">Enhanced Interface</a>
+    <a href="addon-analytics.html">Trend Analytics</a>
+    <a href="addon-horizon.html" aria-current="page">Horizon Scanning</a>
+  </nav>
+
+  <main class="wrap">
+    <div style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:10px;margin-bottom:8px">
+      <h1>WF-A3 &middot; Horizon Threat Scanning</h1>
+    </div>
+    <p class="lede">Optional add-on trial: scan one approved external source for emerging risks.</p>
+
+    <div class="layout">
+      <section class="frame addon">
+        <div class="frame-head"><h2>Horizon Threat Scanning Trial</h2></div>
+        <div class="frame-body">
+          <div class="sec">
+            <h3 class="sec-title"><i class="n">1</i>Sources</h3>
+            <div class="row" style="grid-template-columns:1fr auto">
+              <label class="f">
+                <span>Select external threat feed</span>
+                <span class="box sel">[ Select one approved source type &#9662; ]</span>
+              </label>
+              <span style="align-self:end"><span class="btn solid">Run threat scan</span></span>
+            </div>
+          </div>
+
+          <div class="sec ai">
+            <h3 class="sec-title"><i class="n">2</i>Possible themes <i class="ai-tag">AI FEATURE</i></h3>
+            <div class="card">
+              <div class="card-top">
+                <span>Theme 1: [ Theme ... ]</span>
+                <span class="chip">Source: [ approved source ]</span>
+              </div>
+              <p style="font-size:12px;margin:4px 0">[ Summary ... ]</p>
+              <div class="detail">
+                <b><i class="n" style="margin-right:4px">3</i>Register audit</b>
+                <span>[ Matching risks in the register ... ]</span>
+                <a class="btn sm" href="search.html">View similar risk &rarr;</a>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-top">
+                <span>Theme 2: [ Theme ... ]</span>
+                <span class="chip">Source: [ approved source ]</span>
+              </div>
+              <p style="font-size:12px;margin:4px 0">[ Summary ... ]</p>
+              <div class="detail">
+                <b>SingHealth register audit</b>
+                <span>[ Matching risks in the register ... ]</span>
+                <a class="btn sm" href="search.html">View similar risk &rarr;</a>
+              </div>
+            </div>
+          </div>
+
+          <div class="sec">
+            <h3 class="sec-title"><i class="n">4</i>Trial findings</h3>
+            <div class="row cols-2">
+              <span class="box">Viability [ Findings ]</span>
+              <span class="box">Source and data needs [ Findings ]</span>
+              <span class="box">Limitations [ Findings ]</span>
+              <span class="box">Recommended next steps [ Findings ]</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <aside class="notes" aria-label="Annotations">
+        <h2>Screen Element Description</h2>
+        <ol>
+          <li><strong>Sources</strong>: Selects the approved external source to scan.</li>
+          <li><strong>Possible themes</strong>: Lists possible emerging risk themes. AI reads the approved external source and proposes themes, each with a short summary and its source.</li>
+          <li><strong>Register audit</strong>: Checks whether each theme is already covered in the register. AI compares each theme with registered risks by meaning and flags themes not yet covered.</li>
+          <li><strong>Trial findings</strong>: Viability, source and data needs, limitations and next steps.</li>
+        </ol>
+
+        <h2>Assumption</h2>
+        <ul style="margin:0;padding-left:18px;font-size:12.5px;line-height:1.5">
+          <li><strong>Trial</strong>: A trial that produces findings and sample outputs, not an operating feature.</li>
+        </ul>
+      </aside>
+
+    </div>
+  </main>
+  <footer class="disclaimer">
+    <strong>Confidential draft &middot; Not binding.</strong> Rough concept mockup for discussion only. Screens, scope and wording are indicative and may change; nothing here is a commitment or a final design.
+    Proprietary to SNAIC. Do not copy, share or distribute without SNAIC's written permission.
+  </footer>
+</body>
+</html>

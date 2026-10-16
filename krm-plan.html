@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <title>WF-03 KRM Plan &middot; SingHealth ERMIS</title>
+  <link rel="stylesheet" href="wire.css">
+</head>
+<body>
+  <div class="notice">SNAIC &middot; SingHealth ERMIS Concept &middot; Confidential draft, not binding &middot; <a href="versions.html">v1.1 &middot; 16 Oct 2026</a></div>
+  <nav class="topnav" aria-label="Wireframes">
+    <a href="index.html">Index</a>
+    <a href="flow.html">Flow</a>
+    <a href="dashboard.html">Dashboard</a>
+    <a href="review.html" aria-current="page">ERM review</a>
+    <a href="search.html">Search</a>
+    <a href="import.html">Data import</a>
+    <span class="nav-sep">Add-ons:</span>
+    <a href="addon-interface.html">Enhanced Interface</a>
+    <a href="addon-analytics.html">Trend Analytics</a>
+    <a href="addon-horizon.html">Horizon Scanning</a>
+  </nav>
+
+  <main class="wrap">
+    <h1 style="margin-bottom:8px">WF-03 &middot; KRM Plan Generation &amp; Endorsement</h1>
+    <p class="lede">Generates the standard KRM plan and routes it to the HOD for online endorsement.</p>
+
+
+    <div class="layout">
+      <section class="frame">
+        <div class="frame-head"><h2>Compile &amp; Endorse Key Risk Mitigation (KRM) Plan</h2></div>
+        <div class="frame-body">
+          <!-- Document Header Preview -->
+          <div class="sec">
+            <h3 class="sec-title"><i class="n">1</i>KRM plan</h3>
+            <div class="row cols-2" style="margin-bottom:10px">
+              <label class="f"><span>Institution &amp; department</span><span class="box">[ Institution, department ]</span></label>
+              <label class="f"><span>Review coordinator</span><span class="box">[ Name, contact ]</span></label>
+              <label class="f"><span>Authorising Head of Department</span><span class="box">[ Name, designation ]</span></label>
+              <label class="f"><span>Review cycle</span><span class="box">[ FYXXQX ]</span></label>
+            </div>
+            <div class="f" style="margin-bottom:10px">
+              <span>Objectives (up to 10, as in ERM Tool v3.1)</span>
+              <div class="row cols-5">
+                <span class="box">1) [ Objective ... ]</span>
+                <span class="box">2) [ Objective ... ]</span>
+                <span class="box">3) [ Objective ... ]</span>
+                <span class="box">4) [ Objective ... ]</span>
+                <span class="box">5) [ Objective ... ]</span>
+              </div>
+            </div>
+
+            <!-- Table of Compiled Risks -->
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Identified risk statement &amp; risk domain</th>
+                    <th>Current controls</th>
+                    <th>Additional treatment</th>
+                    <th>Target date</th>
+                    <th>Key indicator (KRI / KOM)</th>
+                    <th>Frequency</th>
+                    <th>Monitored by</th>
+                    <th>Remarks</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>
+                      [ Risk statement ... ]
+                      <div><span class="chip">Clinical</span></div>
+                    </td>
+                    <td>[ Controls ... ]</td>
+                    <td>[ Controls ... ]</td>
+                    <td>[ Date ]</td>
+                    <td>[ Indicator ... ]</td>
+                    <td>[ Frequency ]</td>
+                    <td>[ Name ]</td>
+                    <td>[ Edit ]</td>
+                  </tr>
+                  <tr>
+                    <td>
+                      [ Risk statement ... ]
+                      <div><span class="chip">Operations</span></div>
+                    </td>
+                    <td>[ Controls ... ]</td>
+                    <td>[ Controls ... ]</td>
+                    <td>[ Date ]</td>
+                    <td>[ Indicator ... ]</td>
+                    <td>[ Frequency ]</td>
+                    <td>[ Name ]</td>
+                    <td>[ Edit ]</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Online approval -->
+          <div class="sec">
+            <h3 class="sec-title"><i class="n">2</i>Approval workflow</h3>
+            <div class="row cols-3" style="margin-bottom:12px">
+              <div class="stat">
+                <strong>1. Submit for approval</strong>
+                <p class="hint" style="margin-top:6px">The KRM plan is submitted to the Head of Department.</p>
+                <p style="margin-top:8px"><span class="btn sm solid">Submit for approval</span></p>
+              </div>
+              <div class="stat">
+                <strong>2. HOD review</strong>
+                <p class="hint" style="margin-top:6px">The plan is endorsed online by the HOD, or returned with comments.</p>
+                <p style="margin-top:8px"><span class="btn sm solid">Endorse</span> <span class="btn sm">Return with comments</span></p>
+              </div>
+              <div class="stat">
+                <strong>3. Revise &amp; resubmit</strong>
+                <p class="hint" style="margin-top:6px">A returned plan stays editable and can be resubmitted.</p>
+                <p style="margin-top:8px"><span class="chip">Returned for revision</span></p>
+              </div>
+            </div>
+
+            <div class="btn-row">
+              <span class="btn">Return to edit review</span>
+              <span class="btn">Export PDF</span>
+              <a class="btn solid" href="register.html"><i class="n" style="background:#fff;color:#111;margin-right:4px">3</i>Endorsed &amp; registered: view in risk register &rarr;</a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <aside class="notes" aria-label="Annotations">
+        <h2>Screen Element Description</h2>
+        <ol>
+          <li><strong>KRM plan</strong>: Compiled from the review: header details, objectives and the table of risks, controls and indicators.</li>
+          <li><strong>Approval workflow</strong>: The plan is submitted, then endorsed online by the HOD or returned with comments. A returned plan can be revised and resubmitted.</li>
+          <li><strong>Endorsed &amp; registered</strong>: An endorsed plan is added to the risk register and the coordinator is notified.</li>
+        </ol>
+
+        <h2>Assumption</h2>
+        <ul style="margin:0;padding-left:18px;font-size:12.5px;line-height:1.5">
+          <li><strong>Template</strong>: One standard KRM template. Individual templates are not included.</li>
+          <li><strong>Endorsement</strong>: Endorsement is recorded online with the HOD name and date.</li>
+          <li><strong>Roles</strong>: The HOD has an approver role and sees plans awaiting approval on the dashboard.</li>
+        </ul>
+      </aside>
+    </div>
+  </main>
+  <footer class="disclaimer">
+    <strong>Confidential draft &middot; Not binding.</strong> Rough concept mockup for discussion only. Screens, scope and wording are indicative and may change; nothing here is a commitment or a final design.
+    Proprietary to SNAIC. Do not copy, share or distribute without SNAIC's written permission.
+  </footer>
+</body>
+</html>

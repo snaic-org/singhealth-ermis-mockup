@@ -3,78 +3,205 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Dashboard · ERMIS</title>
-  <link rel="stylesheet" href="css/base.css">
-  <link rel="stylesheet" href="css/shell.css">
-  <link rel="stylesheet" href="css/components.css">
-  <link rel="stylesheet" href="css/dashboard.css">
+  <meta name="robots" content="noindex, nofollow">
+  <title>WF-01 Dashboard &middot; SingHealth ERMIS</title>
+  <link rel="stylesheet" href="wire.css">
 </head>
 <body>
-  <div class="app" id="app">
-    <aside class="sidebar" id="sidebar"></aside>
-    <div class="main">
-      <header class="topbar" id="topbar"></header>
-      <main class="page" id="page">
-        <div class="page-head">
-          <div>
-            <h1>Dashboard</h1>
-            <p>Overview of enterprise risks across institutions and departments.</p>
+  <div class="notice">SNAIC &middot; SingHealth ERMIS Concept &middot; Confidential draft, not binding &middot; <a href="versions.html">v1.1 &middot; 16 Oct 2026</a></div>
+  <nav class="topnav" aria-label="Wireframes">
+    <a href="index.html">Index</a>
+    <a href="flow.html">Flow</a>
+    <a href="dashboard.html" aria-current="page">Dashboard</a>
+    <a href="review.html">ERM review</a>
+    <a href="search.html">Search</a>
+    <a href="import.html">Data import</a>
+    <span class="nav-sep">Add-ons:</span>
+    <a href="addon-interface.html">Enhanced Interface</a>
+    <a href="addon-analytics.html">Trend Analytics</a>
+    <a href="addon-horizon.html">Horizon Scanning</a>
+  </nav>
+
+  <main class="wrap">
+    <h1 style="margin-bottom:8px">WF-01 &middot; Dashboard</h1>
+    <p class="lede">Department risk overview: heat map, control effectiveness, top risks, and reviews in progress.</p>
+
+
+    <div class="layout">
+      <section class="frame">
+        <div class="frame-head"><h2>Dashboard</h2></div>
+        <div class="frame-body">
+
+          <!-- In-app notifications -->
+          <div class="sec">
+            <h3 class="sec-title"><i class="n">1</i>Notifications <span class="chip">Also sent via email</span></h3>
+            <div class="detail"><b>Monitoring due</b><span>[ Risk ... ] - monitoring check</span></div>
+            <div class="detail"><b>KRI review due</b><span>[ KRI ... ] - review date [ date ]</span></div>
+            <div class="detail"><b>Outstanding action</b><span>[ Action ... ] - target [ date ]</span></div>
+            <div class="detail"><b>Approval requested</b><span>[ Review title ... ] - KRM plan awaiting HOD approval</span></div>
+            <div class="detail"><b>Returned</b><span>[ Review title ... ] - returned by the HOD for revision</span></div>
           </div>
-          <div class="page-actions">
-            <a class="btn" href="search.html" id="btn-search">Search risk register</a>
-            <a class="btn btn-primary" href="review.html?new=1" id="btn-start">Start new ERM review</a>
+
+          <!-- Quick actions -->
+          <div class="sec">
+            <h3 class="sec-title"><i class="n">2</i>Quick actions</h3>
+            <div class="btn-row">
+              <a class="btn solid" href="review.html">Start a new review &rarr;</a>
+              <a class="btn" href="register.html">Open risk register &rarr;</a>
+              <a class="btn" href="search.html">Search similar risks &rarr;</a>
+              <a class="btn" href="addon-interface.html#chatbot" style="border-style:dashed">AI-assisted creation <span class="tag-addon">ADD-ON</span> <i class="ai-tag">AI FEATURE</i> &rarr;</a>
+            </div>
           </div>
+
+          <!-- Filters -->
+          <div class="sec">
+            <h3 class="sec-title"><i class="n">3</i>Filters</h3>
+            <div class="row cols-2">
+              <div class="f"><span>Default filter</span><span><span class="chip">Showing: My department</span></span><span class="hint">Fixed in the baseline. It cannot be changed.</span></div>
+              <div class="sec" style="border:1.5px dashed var(--ink)">
+                <h3 class="sec-title">Change filters &amp; dashboard items <span class="tag-addon">ADD-ON</span></h3>
+                <div class="row cols-2">
+                  <span class="box sel">Department</span>
+                  <span class="box sel">Risk domain</span>
+                  <span class="box sel">Residual rating</span>
+                  <span class="box sel">Review cycle</span>
+                </div>
+                <p class="hint" style="margin-top:6px">Configuration and personalisation (WF-A1).</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Charts -->
+          <div class="sec">
+            <h3 class="sec-title"><i class="n">4</i>Risk domain profile</h3>
+            <div class="chart"><div><strong>Risk distribution across the 12 risk domains</strong>Counts split by residual rating (Very high, High, Moderate, Low, Very low) and adequacy class</div></div>
+          </div>
+
+          <div class="row cols-2">
+            <div class="sec">
+              <h3 class="sec-title"><i class="n">5</i>Residual heat map</h3>
+              <div class="chart"><div><strong>5 &times; 5 Matrix (Impact &times; Likelihood)</strong>Plots residual risk after current controls. Numbers show active risk counts.</div></div>
+            </div>
+            <div class="sec">
+              <h3 class="sec-title"><i class="n">6</i>Control effectiveness</h3>
+              <div class="chart"><div><strong>Control Effectiveness</strong>Risks at each of the 7 effectiveness levels, with under-controlled risks highlighted</div></div>
+            </div>
+          </div>
+
+          <!-- Top Risks -->
+          <div class="sec">
+            <h3 class="sec-title"><i class="n">7</i>Priority residual risks</h3>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>Risk statement</th>
+                    <th>Risk domain</th>
+                    <th>Risk owner</th>
+                    <th>Residual rating</th>
+                    <th>Control adequacy</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>1</td>
+                    <td>[ Risk statement ... ]</td>
+                    <td><span class="chip">Clinical</span></td>
+                    <td>[ Name ]</td>
+                    <td><span class="chip">VERY HIGH</span></td>
+                    <td><span class="chip">Under-controlled</span></td>
+                  </tr>
+                  <tr>
+                    <td>2</td>
+                    <td>[ Risk statement ... ]</td>
+                    <td><span class="chip">Clinical</span></td>
+                    <td>[ Name ]</td>
+                    <td><span class="chip">HIGH</span></td>
+                    <td><span class="chip">Potentially Under-controlled</span></td>
+                  </tr>
+                  <tr>
+                    <td>3</td>
+                    <td>[ Risk statement ... ]</td>
+                    <td><span class="chip">Operations</span></td>
+                    <td>[ Name ]</td>
+                    <td><span class="chip">HIGH</span></td>
+                    <td><span class="chip">Adequately Controlled</span></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Active Reviews Queue -->
+          <div class="sec">
+            <h3 class="sec-title"><i class="n">8</i>Reviews in progress</h3>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Review title / scope</th>
+                    <th>Status</th>
+                    <th>Last updated</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><strong>[ Review title ... ]</strong></td>
+                    <td><span class="chip">Draft in Progress</span></td>
+                    <td>Today, 14:30</td>
+                    <td><span class="btn sm">Resume review &rarr;</span></td>
+                  </tr>
+                  <tr>
+                    <td><strong>[ Review title ... ]</strong></td>
+                    <td><span class="chip">Returned for Revision</span></td>
+                    <td>Yesterday, 16:10</td>
+                    <td><span class="btn sm">Revise review &rarr;</span></td>
+                  </tr>
+                  <tr>
+                    <td><strong>[ Review title ... ]</strong></td>
+                    <td><span class="chip">Pending HOD Approval</span></td>
+                    <td>14 Oct 2026</td>
+                    <td><span class="btn sm">View plan &rarr;</span></td>
+                  </tr>
+                  <tr>
+                    <td><strong>[ Review title ... ]</strong></td>
+                    <td><span class="chip">Endorsed &amp; Registered</span></td>
+                    <td>12 Oct 2026</td>
+                    <td><span class="btn sm">View endorsed plan &rarr;</span></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
         </div>
+      </section>
 
-        <div class="filters" role="group" aria-label="Dashboard filters">
-          <label class="filter"><span>Institution</span><select class="select"><option>All</option><option>Option 1</option><option>Option 2</option><option>Option 3</option></select></label>
-          <label class="filter"><span>Risk domain</span><select class="select"><option>All</option><option>Option 1</option><option>Option 2</option><option>Option 3</option></select></label>
-          <label class="filter"><span>Period</span><select class="select"><option>All</option><option>Option 1</option><option>Option 2</option><option>Option 3</option></select></label>
-        </div>
+      <aside class="notes" aria-label="Annotations">
+        <h2>Screen Element Description</h2>
+        <ol>
+          <li><strong>Notifications</strong>: In-app notifications for risk monitoring, KRI review dates, outstanding actions and approvals, also sent via email.</li>
+          <li><strong>Quick actions</strong>: Shortcuts to start a new review, open the risk register or search similar risks. AI-assisted creation (add-on) starts a review through the AI chatbot, which asks questions and fills in the form from the answers.</li>
+          <li><strong>Filters</strong>: A single fixed filter (the user's own department). Changing filters and dashboard items is an add-on.</li>
+          <li><strong>Risk domain profile</strong>: Shows how risks are spread across risk domains, by rating and control adequacy.</li>
+          <li><strong>Residual heat map</strong>: Shows residual risks by impact and likelihood.</li>
+          <li><strong>Control effectiveness</strong>: Shows risks by control effectiveness, highlighting under-controlled risks.</li>
+          <li><strong>Priority residual risks</strong>: Highest-rated risks with owners and control adequacy.</li>
+          <li><strong>Reviews in progress</strong>: Reviews from draft through approval to endorsed.</li>
+        </ol>
 
-        <section class="kpis" id="kpis" aria-label="Key figures"></section>
-
-        <div class="dash-grid">
-          <section class="card span-5">
-            <div class="card-header"><div><h2>Risk heat map</h2><p class="card-sub">Risks plotted by impact and likelihood.</p></div></div>
-            <div class="card-body"><div class="wire-box"><span class="ph-sq ph-sq-lg"></span><strong>5 × 5 heat map</strong><span>Impact × likelihood, with the number of risks in each cell</span></div></div>
-          </section>
-          <section class="card span-7">
-            <div class="card-header"><div><h2>Risk summary by domain</h2><p class="card-sub">Number of risks in each domain, by risk level.</p></div></div>
-            <div class="card-body"><div class="wire-box"><span class="ph-sq ph-sq-lg"></span><strong>Bar chart</strong><span>Risks per domain, split by risk level</span></div></div>
-          </section>
-
-          <section class="card span-12">
-            <div class="card-header"><div><h2>Top 10 risks</h2><p class="card-sub">Highest-rated risks after controls.</p></div></div>
-            <div class="table-wrap"><table class="table" id="top-risks"><thead><tr><th>#</th><th>Risk</th><th>Domain</th><th>Risk owner</th><th>Risk level</th><th>Control adequacy</th><th>Control status</th></tr></thead><tbody></tbody></table></div>
-          </section>
-
-          <section class="card span-6">
-            <div class="card-header"><div><h2>Control effectiveness</h2><p class="card-sub">How effective current controls are across risks.</p></div></div>
-            <div class="card-body"><div class="wire-box"><span class="ph-sq ph-sq-lg"></span><strong>Column chart</strong><span>Number of risks at each control effectiveness level</span></div></div>
-          </section>
-          <section class="card span-6">
-            <div class="card-header"><div><h2>Control adequacy</h2><p class="card-sub">Now, and after proposed controls are in place.</p></div></div>
-            <div class="card-body"><div class="wire-box"><span class="ph-sq ph-sq-lg"></span><strong>Comparison chart</strong><span>Share of risks in each adequacy class, before and after control changes</span></div></div>
-          </section>
-
-          <section class="card span-7">
-            <div class="card-header"><div><h2>My ERM reviews</h2><p class="card-sub">Reviews you have started or submitted.</p></div></div>
-            <div class="table-wrap"><table class="table" id="my-reviews"><thead><tr><th>Review</th><th>Status</th><th>Progress</th><th>Last updated</th><th></th></tr></thead><tbody></tbody></table></div>
-          </section>
-          <section class="card span-5">
-            <div class="card-header"><div><h2>Control actions due</h2><p class="card-sub">Additional controls that are overdue or due soon.</p></div></div>
-            <ul class="ph-list" id="actions-due"></ul>
-          </section>
-        </div>
-      </main>
+        <h2>Assumption</h2>
+        <ul style="margin:0;padding-left:18px;font-size:12.5px;line-height:1.5">
+          <li><strong>Heat Map</strong>: The heat map shows residual risk (after current controls).</li>
+        </ul>
+      </aside>
     </div>
-  </div>
-
-  <script src="js/core/util.js"></script>
-  <script src="js/core/store.js"></script>
-  <script src="js/core/auth.js"></script>
-  <script src="js/core/shell.js"></script>
-  <script src="js/pages/dashboard.js"></script>
+  </main>
+  <footer class="disclaimer">
+    <strong>Confidential draft &middot; Not binding.</strong> Rough concept mockup for discussion only. Screens, scope and wording are indicative and may change; nothing here is a commitment or a final design.
+    Proprietary to SNAIC. Do not copy, share or distribute without SNAIC's written permission.
+  </footer>
 </body>
 </html>

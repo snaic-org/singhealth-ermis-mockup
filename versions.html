@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Version History &middot; SingHealth ERMIS</title>
+  <link rel="stylesheet" href="wire.css">
+</head>
+<body>
+  <div class="notice">SNAIC &middot; SingHealth ERMIS Concept &middot; Confidential draft, not binding &middot; <a href="versions.html">v1.1 &middot; 16 Oct 2026</a></div>
+  <nav class="topnav" aria-label="Wireframes">
+    <a href="index.html">Index</a>
+    <a href="flow.html">Flow</a>
+    <a href="dashboard.html">Dashboard</a>
+    <a href="review.html">ERM review</a>
+    <a href="search.html">Search</a>
+    <a href="import.html">Data import</a>
+    <span class="nav-sep">Add-ons:</span>
+    <a href="addon-interface.html">Enhanced Interface</a>
+    <a href="addon-analytics.html">Trend Analytics</a>
+    <a href="addon-horizon.html">Horizon Scanning</a>
+  </nav>
+
+  <main class="wrap">
+    <h1 style="margin-bottom:8px">Version History</h1>
+    <p class="lede">Record of mockup versions and what changed in each. Current version: <strong>v1.1</strong>.</p>
+
+    <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th style="width:70px">Version</th>
+                <th style="width:100px">Date</th>
+                <th style="width:90px">Status</th>
+                <th>What changed</th>
+                <th style="width:200px">Screens affected</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>v1.1</strong></td>
+                <td>16 Oct 2026</td>
+                <td><span class="chip">Current</span></td>
+                <td>
+                  <ul style="margin:0;padding-left:16px">
+                    <li>Additional controls: the change in effectiveness has 13 options (from maximum effectiveness to control removed). Control adequacy keeps its 4 classes; the rating levels are separate.</li>
+                    <li>Risk rating engine: rule-based, following the existing Excel formulas and 5-level scale. AI does not calculate ratings.</li>
+                    <li>Automated notifications: in-app notifications and email reminders for risk monitoring, KRI review dates and outstanding actions, in the baseline.</li>
+                    <li>Access: 3 access tiers and 6 reporting views replaced by simple user, approver (HOD) and admin roles, now in the baseline.</li>
+                    <li>AI assistance: AI drafts risk statements, current controls, additional controls and KRIs inside the review form on Steps 2 to 5, with the source shown.</li>
+                    <li>Dashboard: "AI-assisted creation" quick action added as an add-on (WF-A1).</li>
+                    <li>Dashboard: notifications moved to the top; quick actions separated; one fixed filter (own department) in the baseline; changing filters and dashboard items is an add-on (WF-A1).</li>
+                    <li>References: opened from a Reference button on each review step.</li>
+                    <li>Enhanced Interface add-on: configuration, personalisation and an AI chatbot guide for filling in reviews.</li>
+                    <li>Approval workflow and draft saving: route for approval, save drafts, resume, and revise after rejection, in the baseline.</li>
+                    <li>Reporting and export: no automatic quarterly reports; search, view and export on demand.</li>
+                    <li>Control Self-Assessment: removed from the POC scope.</li>
+                    <li>Horizon Scanning: stays an optional add-on, outside the baseline.</li>
+                    <li>KRM plan: one standard template; reviews and endorsements completed online.</li>
+                    <li>Step 1: healthcare institution field added.</li>
+                    <li>Register: from up to 3 registers to all 12 risk domains, renamed "risk domain" (classification labels).</li>
+                  </ul>
+                </td>
+                <td>Dashboard, Review Steps 1–5, KRM Plan, Register, Enhanced Interface, Horizon Scanning; Self-Assessment removed</td>
+              </tr>
+              <tr>
+                <td><strong>v1.0</strong></td>
+                <td>15 Oct 2026</td>
+                <td><span class="chip">Initial</span></td>
+                <td>
+                  <ul style="margin:0;padding-left:16px">
+                    <li>Initial scoping mockup: baseline screens and add-ons WF-A1 to WF-A3.</li>
+                    <li>Baseline: 5-step review with 6 reference sets, AI drafting, rule-based ratings, KRM plan with paper endorsement, register, search, self-assessment, data ingestion and a 4-view dashboard.</li>
+                    <li>Register limited to up to 3 registers.</li>
+                  </ul>
+                </td>
+                <td>All screens</td>
+              </tr>
+            </tbody>
+          </table>
+    </div>
+
+  </main>
+  <footer class="disclaimer">
+    <strong>Confidential draft &middot; Not binding.</strong> Rough concept mockup for discussion only. Screens, scope and wording are indicative and may change; nothing here is a commitment or a final design.
+    Proprietary to SNAIC. Do not copy, share or distribute without SNAIC's written permission.
+  </footer>
+</body>
+</html>

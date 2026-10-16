@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <title>WF-02.3 Step 3 &middot; SingHealth ERMIS</title>
+  <link rel="stylesheet" href="wire.css">
+</head>
+<body>
+  <div class="notice">SNAIC &middot; SingHealth ERMIS Concept &middot; Confidential draft, not binding &middot; <a href="versions.html">v1.1 &middot; 16 Oct 2026</a></div>
+  <nav class="topnav" aria-label="Wireframes">
+    <a href="index.html">Index</a>
+    <a href="flow.html">Flow</a>
+    <a href="dashboard.html">Dashboard</a>
+    <a href="review.html" aria-current="page">ERM review</a>
+    <a href="search.html">Search</a>
+    <a href="import.html">Data import</a>
+    <span class="nav-sep">Add-ons:</span>
+    <a href="addon-interface.html">Enhanced Interface</a>
+    <a href="addon-analytics.html">Trend Analytics</a>
+    <a href="addon-horizon.html">Horizon Scanning</a>
+  </nav>
+
+  <main class="wrap">
+    <h1 style="margin-bottom:8px">WF-02.3 &middot; Step 3: Evaluate Current Controls</h1>
+    <p class="lede">Step 3 of 5: Records current controls and rates their effectiveness.</p>
+
+    <div class="layout">
+      <section class="frame">
+        <div class="frame-head"><h2>Current Controls &amp; Residual Rating</h2></div>
+        <div class="frame-body">
+          <ol class="steps">
+            <li><a href="review-1.html">1 Description &amp; goal</a></li><li class="arr">&rarr;</li>
+            <li><a href="review-2.html">2 Objectives &amp; risks</a></li><li class="arr">&rarr;</li>
+            <li class="cur"><a href="review-3.html">3 Current controls</a></li><li class="arr">&rarr;</li>
+            <li><a href="review-4.html">4 Addition / change to controls</a></li><li class="arr">&rarr;</li>
+            <li><a href="review-5.html">5 Monitoring</a></li><li class="arr">&rarr;</li>
+            <li><a href="krm-plan.html">KRM plan &amp; approval</a></li>
+          </ol>
+
+          <div style="display:flex;gap:14px;align-items:flex-start;flex-wrap:wrap">
+          <div style="flex:1 1 380px;min-width:0;display:flex;flex-direction:column;gap:14px">
+          <p class="btn-row"><span class="btn sm"><i class="n" style="margin-right:4px">1</i>Reference &#9656;</span><a class="btn sm" href="search.html"><i class="n" style="margin-right:4px">2</i>Search similar risks &rarr;</a></p>
+
+          <div class="sec">
+            <h3 class="sec-title"><i class="n">3</i>Risk summary</h3>
+            <p style="font-size:12.5px;font-weight:700;margin-bottom:4px">[ Risk statement ... ]</p>
+            <p class="hint">Risk domain: [ ... ] &middot; Inherent rating: [ ... ] &middot; Owner: [ ... ]</p>
+          </div>
+          <div class="sec">
+            <h3 class="sec-title"><i class="n">4</i>Current controls &amp; effectiveness</h3>
+            <div class="row cols-2">
+              <div class="f" style="gap:6px">
+                <label class="f"><span>Current controls <i class="ai-tag">AI FEATURE</i></span><span class="box tall">[ Current controls, one per line ... ]</span></label>
+                <div class="detail"><b>AI draft</b><span>[ Suggested control ... ] &middot; Source: past reviews, ORS guidelines</span><span class="btn sm">Accept</span><span class="btn sm">Edit</span></div>
+              </div>
+              <div class="row">
+                <label class="f"><span>Overall control effectiveness</span><span class="box sel">[ Select level, or Unsure / Don't know &#9662; ]</span></label>
+                <div class="row cols-2">
+                  <span class="box calc">Residual rating: <strong>[ calculated ]</strong> <i class="rules-tag">RULES</i></span>
+                  <span class="box calc">Adequacy: <strong>[ calculated ]</strong> <i class="rules-tag">RULES</i></span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="pager">
+            <span class="btn-row"><span class="btn">&larr; Previous step</span><span class="btn">Save draft</span></span>
+            <a class="btn solid" href="review-4.html">Next: Step 4 &rarr;</a>
+          </div>
+          </div>
+          </div>
+        </div>
+      </section>
+
+      <aside class="notes" aria-label="Annotations">
+        <h2>Screen Element Description</h2>
+        <ol>
+          <li><strong>Reference</strong>: Opens the reference panel.</li>
+          <li><strong>Search similar risks</strong>: Opens Risk Search to find similar past risks and copy their controls into this review.</li>
+          <li><strong>Risk summary</strong>: Read-only summary of the risk from Step 2.</li>
+          <li><strong>Current controls &amp; effectiveness</strong>: Captures current controls and their effectiveness. AI drafts current controls from those used for similar risks in past reviews and ORS guidelines, with the source shown. The user accepts or edits the draft. The system calculates the residual rating and control adequacy.</li>
+        </ol>
+
+        <h2>Assumption</h2>
+        <ul style="margin:0;padding-left:18px;font-size:12.5px;line-height:1.5">
+          <li><strong>Rating</strong>: One overall effectiveness rating per risk.</li>
+        </ul>
+      </aside>
+    </div>
+  </main>
+  <footer class="disclaimer">
+    <strong>Confidential draft &middot; Not binding.</strong> Rough concept mockup for discussion only. Screens, scope and wording are indicative and may change; nothing here is a commitment or a final design.
+    Proprietary to SNAIC. Do not copy, share or distribute without SNAIC's written permission.
+  </footer>
+</body>
+</html>

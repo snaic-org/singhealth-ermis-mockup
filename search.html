@@ -3,49 +3,117 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Risk search · ERMIS</title>
-  <link rel="stylesheet" href="css/base.css">
-  <link rel="stylesheet" href="css/shell.css">
-  <link rel="stylesheet" href="css/components.css">
-  <link rel="stylesheet" href="css/search.css">
+  <meta name="robots" content="noindex, nofollow">
+  <title>WF-05 Risk Search &middot; SingHealth ERMIS</title>
+  <link rel="stylesheet" href="wire.css">
 </head>
 <body>
-  <div class="app" id="app">
-    <aside class="sidebar" id="sidebar"></aside>
-    <div class="main">
-      <header class="topbar" id="topbar"></header>
-      <main class="page" id="page">
-        <div class="page-head">
-          <div>
-            <h1>Risk search</h1>
-            <p>Search the risk register by meaning to find comparable risks, with the controls and indicators used.</p>
+  <div class="notice">SNAIC &middot; SingHealth ERMIS Concept &middot; Confidential draft, not binding &middot; <a href="versions.html">v1.1 &middot; 16 Oct 2026</a></div>
+  <nav class="topnav" aria-label="Wireframes">
+    <a href="index.html">Index</a>
+    <a href="flow.html">Flow</a>
+    <a href="dashboard.html">Dashboard</a>
+    <a href="review.html">ERM review</a>
+    <a href="search.html" aria-current="page">Search</a>
+    <a href="import.html">Data import</a>
+    <span class="nav-sep">Add-ons:</span>
+    <a href="addon-interface.html">Enhanced Interface</a>
+    <a href="addon-analytics.html">Trend Analytics</a>
+    <a href="addon-horizon.html">Horizon Scanning</a>
+  </nav>
+
+  <main class="wrap">
+    <h1 style="margin-bottom:8px">WF-05 &middot; Risk Search</h1>
+    <p class="lede">Finds similar past risks by meaning, with their controls and indicators.</p>
+
+    <div class="layout">
+      <section class="frame">
+        <div class="frame-head"><h2>Risk Search</h2></div>
+        <div class="frame-body">
+          <div class="sec">
+            <h3 class="sec-title"><i class="n">1</i>Search <i class="ai-tag">AI FEATURE</i></h3>
+            <div class="row" style="grid-template-columns:1fr auto">
+              <span class="box">[ Describe a risk ... ]</span>
+              <span class="btn solid">Search</span>
+            </div>
+          </div>
+
+          <div class="row" style="grid-template-columns:220px minmax(0,1fr);align-items:start">
+            <div class="sec">
+              <h3 class="sec-title"><i class="n">2</i>Filters</h3>
+              <div class="row">
+                <label class="f"><span>Risk domain</span><span class="box sel">[ All 12 Domains &#9662; ]</span></label>
+                <label class="f"><span>Department</span><span class="box sel">[ All Departments &#9662; ]</span></label>
+                <label class="f"><span>Residual rating</span><span class="box sel">[ All Ratings &#9662; ]</span></label>
+                <label class="f"><span>Cycle</span><span class="box sel">[ All Periods &#9662; ]</span></label>
+              </div>
+            </div>
+
+            <div class="sec">
+              <h3 class="sec-title"><i class="n">3</i>Results <i class="ai-tag">AI FEATURE</i></h3>
+              
+              <div class="card">
+                <div class="card-top">
+                  <span><span class="chip">[ Department ]</span> <span class="chip">Clinical</span> <span class="chip">Residual: HIGH</span></span>
+                  <span>Match <span class="chip">[ % ]</span></span>
+                </div>
+                <p style="font-size:12.5px;font-weight:700;margin:4px 0">[ Similar risk ... ]</p>
+                <div class="detail">
+                  <b>Proven control</b>
+                  <span>[ Control ... ]</span>
+                  <span class="chip">Substantial</span>
+                  <span class="btn sm">+ Copy control</span>
+                </div>
+                <div class="detail">
+                  <b>Proven indicator</b>
+                  <span>[ Indicator ... ]</span>
+                  <span class="btn sm">+ Copy indicator</span>
+                </div>
+              </div>
+
+              <div class="card">
+                <div class="card-top">
+                  <span><span class="chip">[ Department ]</span> <span class="chip">Clinical</span> <span class="chip">Residual: MODERATE</span></span>
+                  <span>Match <span class="chip">[ % ]</span></span>
+                </div>
+                <p style="font-size:12.5px;font-weight:700;margin:4px 0">[ Similar risk ... ]</p>
+                <div class="detail">
+                  <b>Proven control</b>
+                  <span>[ Control ... ]</span>
+                  <span class="chip">Significant</span>
+                  <span class="btn sm">+ Copy control</span>
+                </div>
+                <div class="detail">
+                  <b>Proven indicator</b>
+                  <span>[ Indicator ... ]</span>
+                  <span class="btn sm">+ Copy indicator</span>
+                </div>
+              </div>
+              <p class="btn-row" style="margin-top:10px"><span class="btn"><i class="n" style="margin-right:4px">4</i>Export results &#9662;</span></p>
+            </div>
           </div>
         </div>
-        <form class="search-bar" id="search-form" role="search">
-          <div class="input-group grow"><span data-icon="search"></span><input class="input" name="q" type="search" placeholder="Describe a risk in your own words" aria-label="Describe a risk" autocomplete="off"></div>
-          <button class="btn btn-primary" type="submit">Search</button>
-        </form>
-        <div class="search-layout">
-          <aside class="search-filters" aria-label="Filters">
-            <h2>Filters</h2>
-            <label class="field"><span class="field-label">Risk domain</span><select class="select"><option>All</option><option>Option 1</option><option>Option 2</option><option>Option 3</option></select></label>
-            <label class="field"><span class="field-label">Institution</span><select class="select"><option>All</option><option>Option 1</option><option>Option 2</option><option>Option 3</option></select></label>
-            <label class="field"><span class="field-label">Risk level</span><select class="select"><option>All</option><option>Option 1</option><option>Option 2</option><option>Option 3</option></select></label>
-            <label class="field"><span class="field-label">Review period</span><select class="select"><option>All</option><option>Option 1</option><option>Option 2</option><option>Option 3</option></select></label>
-          </aside>
-          <section aria-live="polite">
-            <h2 class="sr-title" id="sr-title"></h2>
-            <div class="results" id="results"></div>
-          </section>
-        </div>
-      </main>
-    </div>
-  </div>
+      </section>
 
-  <script src="js/core/util.js"></script>
-  <script src="js/core/store.js"></script>
-  <script src="js/core/auth.js"></script>
-  <script src="js/core/shell.js"></script>
-  <script src="js/pages/search.js"></script>
+      <aside class="notes" aria-label="Annotations">
+        <h2>Screen Element Description</h2>
+        <ol>
+          <li><strong>Search</strong>: Finds past risks from a plain-language question or description. AI matches it by meaning, so risks worded differently are still found.</li>
+          <li><strong>Filters</strong>: Risk domain, department, rating and cycle.</li>
+          <li><strong>Results</strong>: Lists similar past risks with their controls and indicators, which can be copied into a review. AI ranks them by similarity, most similar first, with a similarity score.</li>
+          <li><strong>Export results</strong>: Exports the current search results on demand.</li>
+        </ol>
+
+        <h2>Assumption</h2>
+        <ul style="margin:0;padding-left:18px;font-size:12.5px;line-height:1.5">
+          <li><strong>Data</strong>: Search covers the historical reviews loaded for the pilot.</li>
+        </ul>
+      </aside>
+    </div>
+  </main>
+  <footer class="disclaimer">
+    <strong>Confidential draft &middot; Not binding.</strong> Rough concept mockup for discussion only. Screens, scope and wording are indicative and may change; nothing here is a commitment or a final design.
+    Proprietary to SNAIC. Do not copy, share or distribute without SNAIC's written permission.
+  </footer>
 </body>
 </html>

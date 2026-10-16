@@ -1,57 +1,61 @@
-# ERMIS concept wireframe
+# SingHealth ERMIS Mockup
 
-A low-fidelity, clickable wireframe of the proposed SingHealth Enterprise Risk Management Information System (ERMIS). It is meant to help stakeholders visualise the concept and the proposed workflow, and to collect feedback. It is not a finished product or a final UI design.
+Low-fidelity schematic mockup for the proposed AI-enabled Enterprise Risk Management Information System (ERMIS), by SNAIC. It shows what the system does and how a user moves through it, for scoping discussions. It is not a design.
 
-All content is placeholder: grey bars stand in for data, charts are labelled placeholder boxes, and drop-downs show generic options. A notice at the top of every page says so.
+Each screen is monochrome boxes and labels with numbered notes, baseline vs add-on scope, and working assumptions. Buttons that move to another screen are links, so the main flow can be walked through. Buttons that act on data (save, submit, export, resume) are shown but not clickable. Nothing is real data and nothing is final. Changes between versions are recorded in `versions.html`.
 
-Built with plain HTML, CSS and JavaScript. There is no build step and no backend; anything typed is kept in the browser's `localStorage`.
+**Confidential draft, not binding.** Rough concept mockup for discussion only; screens, scope and wording are indicative and may change. Proprietary to SNAIC. Do not copy, share or distribute without SNAIC's written permission.
+
+## Screens
+
+| ID | File | Shows |
+|---|---|---|
+| Index | `index.html` | Screen list with scope notes, key to the markers |
+| Flow | `flow.html` | Overall flow diagram. Every box is a link |
+| WF-01 | `dashboard.html` | Four standard views, review queue and notifications |
+| WF-02 | `review.html`, `review-1.html` to `review-5.html` | The five review steps, with inline AI suggestions on Steps 2 to 5 |
+| WF-03 | `krm-plan.html` | Standard KRM plan and online approval |
+| WF-04 | `register.html` | Risk register: filter, export on demand, copy |
+| WF-05 | `search.html` | Search by meaning |
+| WF-06 | `import.html` | Loading past Excel workbooks and flagged records |
+| WF-A1 | `addon-interface.html` | Add-on: configuration, personalisation, AI chatbot guide |
+| WF-A2 | `addon-analytics.html` | Add-on: trends, clusters, control gaps, summary report |
+| WF-A3 | `addon-horizon.html` | Add-on: horizon scanning trial |
+| Versions | `versions.html` | Version history |
+
+## AI markers
+
+| Tag | Meaning |
+|---|---|
+| `AI FEATURE` | Where AI is integrated |
+| `RULES` | Fixed rules, not AI |
 
 ## Running it
 
-Open `index.html` in a browser, or serve the folder:
+Plain HTML and CSS. No build step, no JavaScript, no backend. Open `index.html`, or serve the folder:
 
 ```bash
 python3 -m http.server 8000
 # then open http://localhost:8000
 ```
 
-**Sign in**
+## Publishing on GitHub Pages
 
-| Email | Password |
-|---|---|
-| `risk.coordinator@singhealth.com.sg` | `Ermis@2026` |
+The `docs/` folder holds client and internal documents, so the site is published with a workflow that copies only the pages and `wire.css`. Do not use "Deploy from a branch", which would serve `docs/` too.
 
-To clear anything entered during a walkthrough, add `?reset=1` to a page URL, e.g. `index.html?reset=1`.
+1. Push the branch.
+2. In the repository, go to **Settings > Pages** and set **Source** to **GitHub Actions**.
+3. The workflow in `.github/workflows/pages.yml` runs on pushes to `main` and `concept`, and from the Actions tab.
+4. If the deployment is blocked for the `concept` branch, add it under **Settings > Environments > github-pages > Deployment branches**.
+5. The site appears at `https://<user>.github.io/<repository>/`.
 
-## What the wireframe shows
-
-1. **Dashboard:**
-   - **Header:** a "Start new ERM review" button.
-   - **Key figures:** placeholder tiles.
-   - **Chart placeholders:** heat map, risks by domain, control effectiveness and control adequacy.
-   - **Lists:** placeholder tables for top risks, your reviews and control actions due.
-2. **ERM review workflow:** the five ERM Tool steps plus *Review & submit*.
-   - **Steps:**
-     - Step 1: description and goal;
-     - Step 2: objectives and risks;
-     - Step 3: current controls;
-     - Step 4: additional controls;
-     - Step 5: KRM plan;
-     - Review & submit: the KRM Plan layout, print and submit.
-   - **Risk flow-through:** risks added or removed in Step 2 appear in every later step.
-   - **Ratings:** shown as "calculated here" placeholders, with the rating formula in the side panel.
-3. **AI-assisted drafting:** selecting a supported field opens the *ERMIS Assist* panel.
-   - **Supported fields:** description, goal, objectives, risk statement, consequences, controls and indicators.
-   - **Suggestion cards:** placeholders. Insert/Add puts bracketed placeholder text into the field.
-   - **Find similar risks:** opens placeholder results whose controls or indicators can be added to the risk.
-4. **Semantic search:** a search box and filters. A search shows placeholder result cards with a similarity score and expandable controls and indicators.
+GitHub Pages sites are public unless the organisation has private Pages. Check the wording is acceptable to share before publishing.
 
 ## Structure
 
 ```
-index.html, dashboard.html, review.html, search.html
-css/       base (tokens, placeholder primitives), shell, components, page styles
-js/core/   util, store (localStorage), auth, shell (layout, notice, drawers)
-js/        assist.js (side panel / ERMIS Assist)
-js/pages/  one script per page
+*.html     the screens
+wire.css   the only stylesheet
+docs/      source documents and notes (not published)
+.github/workflows/pages.yml
 ```

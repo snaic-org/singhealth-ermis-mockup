@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <title>WF-A2 Trend Analytics &middot; SingHealth ERMIS</title>
+  <link rel="stylesheet" href="wire.css">
+</head>
+<body>
+  <div class="notice">SNAIC &middot; SingHealth ERMIS Concept &middot; Confidential draft, not binding &middot; <a href="versions.html">v1.1 &middot; 16 Oct 2026</a></div>
+  <nav class="topnav" aria-label="Wireframes">
+    <a href="index.html">Index</a>
+    <a href="flow.html">Flow</a>
+    <a href="dashboard.html">Dashboard</a>
+    <a href="review.html">ERM review</a>
+    <a href="search.html">Search</a>
+    <a href="import.html">Data import</a>
+    <span class="nav-sep">Add-ons:</span>
+    <a href="addon-interface.html">Enhanced Interface</a>
+    <a href="addon-analytics.html" aria-current="page">Trend Analytics</a>
+    <a href="addon-horizon.html">Horizon Scanning</a>
+  </nav>
+
+  <main class="wrap">
+    <div style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:10px;margin-bottom:8px">
+      <h1>WF-A2 &middot; AI Trend Analytics &amp; Reporting</h1>
+    </div>
+    <p class="lede">Optional add-on: trends and patterns across departments, with an AI summary report.</p>
+
+    <div class="layout">
+      <section class="frame addon">
+        <div class="frame-head"><h2>Cross-Department Trend &amp; Pattern Analytics</h2></div>
+        <div class="frame-body">
+          <div class="sec">
+            <h3 class="sec-title"><i class="n">1</i>Scope</h3>
+            <div class="row cols-4">
+              <label class="f"><span>Participating departments</span><span class="box sel">[ All Departments &#9662; ]</span></label>
+              <label class="f"><span>Risk domain</span><span class="box sel">[ All 12 Risk Domains &#9662; ]</span></label>
+              <label class="f"><span>Start cycle</span><span class="box sel">[ FYXXQX &#9662; ]</span></label>
+              <label class="f"><span>End cycle</span><span class="box sel">[ FYXXQX &#9662; ]</span></label>
+            </div>
+          </div>
+
+          <div class="sec">
+            <h3 class="sec-title"><i class="n">2</i>Analyses</h3>
+            <ul class="tabs"><li class="cur">Rating trajectory</li><li>Risk clusters</li><li>Control gaps</li><li>Domain breakdown</li></ul>
+            <div class="row cols-2">
+              <div class="chart"><div><strong>Rating trajectory over time</strong>Tracks movement of Inherent vs. Residual ratings across quarters</div></div>
+              <div class="chart"><div><strong>Risk statement clusters <i class="ai-tag">AI FEATURE</i></strong>Groups similar risks across departments</div></div>
+              <div class="chart"><div><strong>Control gap detection <i class="ai-tag">AI FEATURE</i></strong>Identifies controls used in one department that are missing in another</div></div>
+              <div class="chart"><div><strong>Risk domain breakdown <i class="rules-tag">RULES</i></strong>Risk counts across all 12 domains</div></div>
+            </div>
+          </div>
+
+          <div class="sec ai">
+            <h3 class="sec-title"><i class="n">3</i>Summary report <i class="ai-tag">AI FEATURE</i></h3>
+            <span class="ph"></span><span class="ph w90"></span><span class="ph w80"></span>
+            <p class="hint" style="margin-top:6px">Drafts a summary based on the selected review data.</p>
+            <div class="btn-row" style="margin-top:8px"><span class="btn solid">Generate summary report</span><span class="btn">Export report (PDF)</span></div>
+          </div>
+        </div>
+      </section>
+
+      <aside class="notes" aria-label="Annotations">
+        <h2>Screen Element Description</h2>
+        <ol>
+          <li><strong>Scope</strong>: Departments, risk domain and review cycles to analyse.</li>
+          <li><strong>Analyses</strong>: Shows trends and patterns across departments. AI groups similar risk statements into clusters and finds controls used in one department but missing in another. Rating trajectory and risk domain breakdown are counted from the data.</li>
+          <li><strong>Summary report</strong>: Produces a summary report for export to PDF. AI drafts the summary of the main trends, clusters and gaps, and the user edits it.</li>
+        </ol>
+
+        <h2>Assumption</h2>
+        <ul style="margin:0;padding-left:18px;font-size:12.5px;line-height:1.5">
+          <li><strong>Data</strong>: Results depend on the amount and quality of the loaded history.</li>
+        </ul>
+      </aside>
+    </div>
+  </main>
+  <footer class="disclaimer">
+    <strong>Confidential draft &middot; Not binding.</strong> Rough concept mockup for discussion only. Screens, scope and wording are indicative and may change; nothing here is a commitment or a final design.
+    Proprietary to SNAIC. Do not copy, share or distribute without SNAIC's written permission.
+  </footer>
+</body>
+</html>

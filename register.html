@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <title>WF-04 Risk Register &middot; SingHealth ERMIS</title>
+  <link rel="stylesheet" href="wire.css">
+</head>
+<body>
+  <div class="notice">SNAIC &middot; SingHealth ERMIS Concept &middot; Confidential draft, not binding &middot; <a href="versions.html">v1.1 &middot; 16 Oct 2026</a></div>
+  <nav class="topnav" aria-label="Wireframes">
+    <a href="index.html">Index</a>
+    <a href="flow.html">Flow</a>
+    <a href="dashboard.html">Dashboard</a>
+    <a href="review.html" aria-current="page">ERM review</a>
+    <a href="search.html">Search</a>
+    <a href="import.html">Data import</a>
+    <span class="nav-sep">Add-ons:</span>
+    <a href="addon-interface.html">Enhanced Interface</a>
+    <a href="addon-analytics.html">Trend Analytics</a>
+    <a href="addon-horizon.html">Horizon Scanning</a>
+  </nav>
+
+  <main class="wrap">
+    <h1 style="margin-bottom:8px">WF-04 &middot; Department Risk Register</h1>
+    <p class="lede">Live register of endorsed reviews, with search, on-demand export and copying.</p>
+
+
+    <div class="layout">
+      <section class="frame">
+        <div class="frame-head"><h2>Live Department Risk Register</h2></div>
+        <div class="frame-body">
+          <div class="sec">
+            <h3 class="sec-title"><i class="n">1</i>Filters</h3>
+            <div class="row cols-3" style="margin-bottom:10px">
+              <label class="f"><span>Department</span><span class="box sel">[ Department ]</span></label>
+              <label class="f"><span>Objective keyword</span><span class="box">[ Keyword ... ]</span></label>
+              <label class="f"><span>Risk domain</span><span class="box sel">[ All 12 Risk Domains ]</span></label>
+              <label class="f"><span>Residual rating</span><span class="box sel">[ All | Very high | High | Moderate | Low | Very low ]</span></label>
+              <label class="f"><span>Risk owner</span><span class="box">[ Name ]</span></label>
+              <label class="f"><span>Review cycle</span><span class="box sel">[ All cycles ]</span></label>
+            </div>
+            <div class="btn-row"><span class="btn solid">Apply filters</span><span class="btn">Reset filters</span></div>
+          </div>
+
+          <div class="sec">
+            <div class="pager" style="margin-bottom:8px">
+              <h3 class="sec-title" style="margin:0"><i class="n">2</i>Registered risks</h3>
+              <span class="btn"><i class="n" style="margin-right:4px">3</i>Export register &#9662;</span>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Department</th>
+                    <th>Objective</th>
+                    <th>Risk statement</th>
+                    <th>Risk domain</th>
+                    <th>Owner</th>
+                    <th>Residual &rarr; Projected</th>
+                    <th>Cycle</th>
+                    <th>Endorsed</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>[ Department ]</td>
+                    <td>[ Objective ... ]</td>
+                    <td>[ Risk statement ... ]</td>
+                    <td><span class="chip">Clinical</span></td>
+                    <td>[ Name ]</td>
+                    <td><span class="chip">HIGH</span> &rarr; <span class="chip">MODERATE</span></td>
+                    <td>FYXXQX</td>
+                    <td><a class="btn sm" href="krm-plan.html">View KRM plan</a></td>
+                    <td><a class="btn sm" href="review-1.html"><i class="n" style="margin-right:4px">4</i>Copy to a new review &rarr;</a></td>
+                  </tr>
+                  <tr>
+                    <td>[ Department ]</td>
+                    <td>[ Objective ... ]</td>
+                    <td>[ Risk statement ... ]</td>
+                    <td><span class="chip">Clinical</span></td>
+                    <td>[ Name ]</td>
+                    <td><span class="chip">MODERATE</span> &rarr; <span class="chip">LOW</span></td>
+                    <td>FYXXQX</td>
+                    <td><a class="btn sm" href="krm-plan.html">View KRM plan</a></td>
+                    <td><a class="btn sm" href="review-1.html">Copy to a new review &rarr;</a></td>
+                  </tr>
+                  <tr>
+                    <td>[ Department ]</td>
+                    <td>[ Objective ... ]</td>
+                    <td>[ Risk statement ... ]</td>
+                    <td><span class="chip">Operations</span></td>
+                    <td>[ Name ]</td>
+                    <td><span class="chip">VERY HIGH</span> &rarr; <span class="chip">HIGH</span></td>
+                    <td>FYXXQX</td>
+                    <td><a class="btn sm" href="krm-plan.html">View KRM plan</a></td>
+                    <td><a class="btn sm" href="review-1.html">Copy to a new review &rarr;</a></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <aside class="notes" aria-label="Annotations">
+        <h2>Screen Element Description</h2>
+        <ol>
+          <li><strong>Filters</strong>: Department, objective, risk domain, rating, owner and review cycle.</li>
+          <li><strong>Registered risks</strong>: Endorsed reviews are added automatically, with no re-typing.</li>
+          <li><strong>Export register</strong>: On demand, by department, review cycle or full dataset.</li>
+          <li><strong>Copy to a new review</strong>: Makes a copy of an existing review as a new draft.</li>
+        </ol>
+
+        <h2>Assumption</h2>
+        <ul style="margin:0;padding-left:18px;font-size:12.5px;line-height:1.5">
+          <li><strong>Risk Domains</strong>: All 12 domains are labels used to classify and filter risks.</li>
+        </ul>
+      </aside>
+    </div>
+  </main>
+  <footer class="disclaimer">
+    <strong>Confidential draft &middot; Not binding.</strong> Rough concept mockup for discussion only. Screens, scope and wording are indicative and may change; nothing here is a commitment or a final design.
+    Proprietary to SNAIC. Do not copy, share or distribute without SNAIC's written permission.
+  </footer>
+</body>
+</html>

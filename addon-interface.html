@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <title>WF-A1 Enhanced Interface &middot; SingHealth ERMIS</title>
+  <link rel="stylesheet" href="wire.css">
+</head>
+<body>
+  <div class="notice">SNAIC &middot; SingHealth ERMIS Concept &middot; Confidential draft, not binding &middot; <a href="versions.html">v1.1 &middot; 16 Oct 2026</a></div>
+  <nav class="topnav" aria-label="Wireframes">
+    <a href="index.html">Index</a>
+    <a href="flow.html">Flow</a>
+    <a href="dashboard.html">Dashboard</a>
+    <a href="review.html">ERM review</a>
+    <a href="search.html">Search</a>
+    <a href="import.html">Data import</a>
+    <span class="nav-sep">Add-ons:</span>
+    <a href="addon-interface.html" aria-current="page">Enhanced Interface</a>
+    <a href="addon-analytics.html">Trend Analytics</a>
+    <a href="addon-horizon.html">Horizon Scanning</a>
+  </nav>
+
+  <main class="wrap">
+    <div style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:10px;margin-bottom:8px">
+      <h1>WF-A1 &middot; Enhanced Interface</h1>
+    </div>
+    <p class="lede">Optional add-on: configuration and personalisation, an AI chatbot guide, indicator management and conditional workflow.</p>
+
+    <div class="layout">
+      <div>
+        <section class="frame addon">
+          <div class="frame-head"><span class="tag-addon">WF-A1a</span><h2>Configuration &amp; personalisation</h2></div>
+          <div class="frame-body">
+            <div class="row cols-2">
+              <div class="sec">
+                <h3 class="sec-title"><i class="n">1</i>Configuration (admin)</h3>
+                <div class="row">
+                  <label class="f"><span>Dashboard views shown</span><span class="box sel">[ Select views ]</span></label>
+                  <label class="f"><span>Default filters</span><span class="box sel">[ Department, domain, rating ]</span></label>
+                  <label class="f"><span>Notification timing</span><span class="box sel">[ Days before due date ]</span></label>
+                </div>
+              </div>
+              <div class="sec">
+                <h3 class="sec-title"><i class="n">2</i>Personalisation (user)</h3>
+                <div class="row">
+                  <label class="f"><span>Default department</span><span class="box sel">[ Select ]</span></label>
+                  <label class="f"><span>Saved filters</span><span class="box sel">[ My saved filters ]</span></label>
+                  <label class="f"><span>Dashboard layout</span><span class="box sel">[ Order of views ]</span></label>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="frame addon" id="chatbot">
+          <div class="frame-head"><span class="tag-addon">WF-A1b</span><h2>Chatbot guide <i class="ai-tag">AI FEATURE</i></h2></div>
+          <div class="frame-body">
+            <div class="row cols-2">
+              <div class="sec">
+                <h3 class="sec-title"><i class="n">3</i>Chat</h3>
+                <div class="detail"><b>Chatbot</b><span>Tell me about the risk. What could stop the objective?</span></div>
+                <div class="detail"><b>User</b><span>[ User describes the risk ... ]</span></div>
+                <div class="detail"><b>Chatbot</b><span>Suggested risk statement: [ draft text ]. Add it to the form?</span></div>
+                <div class="btn-row" style="margin:8px 0"><span class="btn sm">Yes, add</span><span class="btn sm">Edit</span></div>
+                <div class="detail"><b>Chatbot</b><span>Next: how severe and how likely is it? [ 5 options each ]</span></div>
+                <span class="box" style="margin-top:8px">[ Type a question or an answer ]</span>
+              </div>
+              <div class="sec">
+                <h3 class="sec-title"><i class="n">4</i>Form</h3>
+                <div class="row">
+                  <span class="box">Risk statement [ filled from chat ]</span>
+                  <span class="box">Consequences [ filled from chat ]</span>
+                  <span class="box">Risk domain [ Clinical ]</span>
+                  <span class="box">Impact / Likelihood [ pending ]</span>
+                  <span class="box">Current controls [ pending ]</span>
+                </div>
+                <p class="hint" style="margin-top:6px">Steps are completed one question at a time, without moving from form to form. Ratings still come from fixed rules.</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="frame addon">
+          <div class="frame-head"><span class="tag-addon">WF-A1c</span><h2>Indicator definition, upload &amp; management</h2></div>
+          <div class="frame-body">
+            <div class="sec">
+              <h3 class="sec-title"><i class="n">5</i>KRI list</h3>
+              <div class="btn-row" style="margin-bottom:8px"><span class="btn">+ Define KRI</span><span class="btn">Upload indicator results</span></div>
+              <div class="table-wrap">
+                <table>
+                  <thead><tr><th>Indicator definition</th><th>Linked risk statement</th><th>Threshold / Target</th><th>Tracking cadence</th><th>Latest result</th><th></th></tr></thead>
+                  <tbody>
+                    <tr><td>[ Indicator ... ]</td><td>[ Risk statement ... ]</td><td>[ Threshold ]</td><td>[ Frequency ]</td><td><span class="chip">[ Result ]</span></td><td><span class="btn sm">Edit</span></td></tr>
+                    <tr><td>[ Indicator ... ]</td><td>[ Risk statement ... ]</td><td>[ Threshold ]</td><td>[ Frequency ]</td><td><span class="chip">[ Result ]</span></td><td><span class="btn sm">Edit</span></td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="frame addon">
+          <div class="frame-head"><span class="tag-addon">WF-A1d</span><h2>Conditional review workflow</h2></div>
+          <div class="frame-body">
+            <div class="sec">
+              <h3 class="sec-title"><i class="n">6</i>Conditional workflow <i class="rules-tag">RULES</i></h3>
+              <div class="row">
+                <span class="box">IF [ Residual rating is Very high ]</span>
+                <span class="box">THEN [ Require an escalation note and a KRI ]</span>
+              </div>
+              <p class="hint" style="margin-top:6px">High-rated risks trigger extra required fields.</p>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <aside class="notes" aria-label="Annotations">
+        <h2>Screen Element Description</h2>
+        <ol>
+          <li><strong>Configuration (admin)</strong>: Dashboard views, default filters and notification timing.</li>
+          <li><strong>Personalisation (user)</strong>: Default department, saved filters and dashboard layout.</li>
+          <li><strong>Chat</strong>: Guides the user through a review as a conversation. AI asks questions one at a time, explains terms when asked and prompts for missing details.</li>
+          <li><strong>Form</strong>: Shows the review form being filled in. AI turns each answer into the matching field, and the user accepts or edits it.</li>
+          <li><strong>KRI list</strong>: Define KRIs and upload their results.</li>
+          <li><strong>Conditional workflow</strong>: Extra required fields for high-rated risks.</li>
+        </ol>
+
+        <h2>Assumption</h2>
+        <ul style="margin:0;padding-left:18px;font-size:12.5px;line-height:1.5">
+          <li><strong>Access</strong>: Simple user, approver (HOD) and admin roles are in the baseline. The 3 access tiers and 6 reporting views are not included.</li>
+          <li><strong>Chatbot</strong>: It fills the same fields as the review form. Ratings still come from fixed rules.</li>
+        </ul>
+      </aside>
+    </div>
+  </main>
+  <footer class="disclaimer">
+    <strong>Confidential draft &middot; Not binding.</strong> Rough concept mockup for discussion only. Screens, scope and wording are indicative and may change; nothing here is a commitment or a final design.
+    Proprietary to SNAIC. Do not copy, share or distribute without SNAIC's written permission.
+  </footer>
+</body>
+</html>

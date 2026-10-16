@@ -3,35 +3,147 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Sign in · ERMIS</title>
-  <link rel="stylesheet" href="css/base.css">
-  <link rel="stylesheet" href="css/login.css">
+  <meta name="robots" content="noindex, nofollow">
+  <title>SingHealth ERMIS &middot; Preliminary Scoping Wireframes</title>
+  <link rel="stylesheet" href="wire.css">
 </head>
-<body class="login-body">
-  <main class="login">
-    <form class="login-card" id="login-form" novalidate>
-      <div class="login-brand"><span class="ph-sq ph-sq-lg"></span><div><div class="login-name">ERMIS</div><div class="login-org">Office of Risk Services</div></div></div>
-      <h1>Sign in</h1>
+<body>
+  <div class="notice">SNAIC &middot; SingHealth ERMIS Concept &middot; Confidential draft, not binding &middot; <a href="versions.html">v1.1 &middot; 16 Oct 2026</a></div>
+  <nav class="topnav" aria-label="Wireframes">
+    <a href="index.html" aria-current="page">Index</a>
+    <a href="flow.html">Flow</a>
+    <a href="dashboard.html">Dashboard</a>
+    <a href="review.html">ERM Review</a>
+    <a href="search.html">Search</a>
+    <a href="import.html">Data Import</a>
+    <span class="nav-sep">Add-ons:</span>
+    <a href="addon-interface.html">Enhanced Interface</a>
+    <a href="addon-analytics.html">Trend Analytics</a>
+    <a href="addon-horizon.html">Horizon Scanning</a>
+  </nav>
 
-      <div class="callout callout-danger hidden" id="login-error" role="alert"></div>
+  <main class="wrap">
+    <h1 style="margin-bottom:8px">SingHealth ERMIS Mockup</h1>
+    <p class="lede">Schematic mockups designed to help users <strong>visualise the basic system</strong> and <strong>evaluate optional add-on features</strong> to determine project scope and budget. The <a href="flow.html">Overall Flow Diagram</a> shows the envisioned system: its screens and functions, and how they connect.</p>
 
-      <label class="field" id="f-email">
-        <span class="field-label">Email address</span>
-        <input class="input" type="email" name="email" autocomplete="username" placeholder="Enter your email address">
-        <span class="field-error">Enter your email address.</span>
-      </label>
-      <label class="field" id="f-password">
-        <span class="field-label">Password</span>
-        <input class="input" type="password" name="password" autocomplete="current-password" placeholder="Enter your password">
-        <span class="field-error">Enter your password.</span>
-      </label>
-      <button class="btn btn-primary login-submit" type="submit" id="login-submit">Sign in</button>
-    </form>
+    <!-- Table 1: Baseline -->
+    <section class="frame">
+      <div class="frame-head">
+        <h2>Baseline Envisioned System Screens</h2>
+      </div>
+      <div class="frame-body">
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th style="width:75px">Screen ID</th>
+                <th style="width:220px">Screen Name</th>
+                <th>Function</th>
+                <th style="width:180px">Scope Note</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>WF-01</strong></td>
+                <td><a href="dashboard.html"><strong>Dashboard</strong></a></td>
+                <td>Department overview: heat map, control adequacy, top risks, and reviews in progress.</td>
+                <td><span class="chip">4 standard views</span></td>
+              </tr>
+              <tr>
+                <td><strong>WF-02</strong></td>
+                <td><a href="review.html"><strong>Review Start Page</strong></a></td>
+                <td>Guided review: goal, objectives, risks, controls, and KRM plan.</td>
+                <td><span class="chip">1 standard workflow</span></td>
+              </tr>
+              <tr>
+                <td><strong>WF-03</strong></td>
+                <td><a href="krm-plan.html"><strong>KRM Plan &amp; Endorsement</strong></a></td>
+                <td>Compiles the standard KRM plan and routes it for online endorsement.</td>
+                <td><span class="chip">1 standard template</span></td>
+              </tr>
+              <tr>
+                <td><strong>WF-04</strong></td>
+                <td><a href="register.html"><strong>Department Risk Register</strong></a></td>
+                <td>Live register of endorsed reviews. Filter, copy, or export.</td>
+                <td><span class="chip">12 risk domains</span></td>
+              </tr>
+              <tr>
+                <td><strong>WF-05</strong></td>
+                <td><a href="search.html"><strong>Risk Search</strong></a></td>
+                <td>Finds similar past risks, with their controls and indicators.</td>
+                <td><span class="chip">Searches loaded reviews</span></td>
+              </tr>
+              <tr>
+                <td><strong>WF-06</strong></td>
+                <td><a href="import.html"><strong>Data Import</strong></a></td>
+                <td>Uploads and migrates existing Excel workbooks into the new system.</td>
+                <td><span class="chip">Excel v3.1 only</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- Table 2: Add-Ons -->
+    <section class="frame addon">
+      <div class="frame-head">
+        <h2>Add-On Modules</h2>
+      </div>
+      <div class="frame-body">
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th style="width:75px">Add-on</th>
+                <th style="width:240px">Module Name</th>
+                <th>Function</th>
+                <th style="width:180px">Scope Note</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>WF-A1</strong></td>
+                <td><a href="addon-interface.html"><strong>Enhanced Interface</strong></a></td>
+                <td>Configuration and personalisation, an AI chatbot guide, indicator management and conditional workflow.</td>
+                <td><span class="chip">Config, personalisation, chatbot</span></td>
+              </tr>
+              <tr>
+                <td><strong>WF-A2</strong></td>
+                <td><a href="addon-analytics.html"><strong>AI Trend Analytics &amp; Reporting</strong></a></td>
+                <td>Trends, risk clustering and control gap comparison across departments, with an AI summary report.</td>
+                <td><span class="chip">4 analyses, 1 report</span></td>
+              </tr>
+              <tr>
+                <td><strong>WF-A3</strong></td>
+                <td><a href="addon-horizon.html"><strong>Horizon Scanning</strong></a></td>
+                <td>Proof-of-concept scan of one approved external source for emerging risks, compared with the register.</td>
+                <td><span class="chip">1 source, trial only</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- Legend -->
+    <section class="frame">
+      <div class="frame-head"><h2>Visual Guide to Schematic Markers</h2></div>
+      <div class="frame-body">
+        <ul class="legend">
+          <li><span class="sample"><span class="scope-base">BASELINE</span></span> Core feature</li>
+          <li><span class="sample"><span class="scope-addon">ADD-ON</span></span> Optional feature</li>
+          <li><span class="sample"><i class="ai-tag" style="margin:0">AI FEATURE</i></span> Where AI is integrated</li>
+          <li><span class="sample"><i class="rules-tag" style="margin:0">RULES</i></span> Fixed math/scoring rule</li>
+          <li><span class="sample"><i class="n">1</i><i class="n">2</i></span> Numbered callout explained in sidebar notes</li>
+          <li><span class="sample"><span class="box sel">[ Dropdown ]</span></span> Standard form input field</li>
+        </ul>
+      </div>
+    </section>
   </main>
-
-  <script src="js/core/util.js"></script>
-  <script src="js/core/auth.js"></script>
-  <script src="js/core/shell.js"></script>
-  <script src="js/pages/login.js"></script>
+  <footer class="disclaimer">
+    <strong>Confidential draft &middot; Not binding.</strong> Rough concept mockup for discussion only. Screens, scope and wording are indicative and may change; nothing here is a commitment or a final design.
+    Proprietary to SNAIC. Do not copy, share or distribute without SNAIC's written permission.
+  </footer>
 </body>
 </html>
